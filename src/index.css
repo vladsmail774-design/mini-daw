@@ -1,36 +1,84 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  background: #0b0d10;
-  color: #e5e7eb;
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-  user-select: none;
-  overflow: hidden;
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    background: #05070a;
+    color: #f1f5f9;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    appearance: none;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    accent-color: #4ade80;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    appearance: none;
+    border-radius: 9999px;
+    background: #4ade80;
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: #4ade80;
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
+    border: none;
+  }
+
+  input[type="number"] {
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 }
 
-button {
-  outline: none;
-}
+@layer components {
+  .panel-shell {
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(40px);
+    box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5);
+  }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  height: 4px;
-  background: #222a33;
-  border-radius: 9999px;
-  outline: none;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 9999px;
-  background: #4ade80;
-  cursor: pointer;
-}
+  .control-surface {
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  }
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    color: rgb(100, 116, 139);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}

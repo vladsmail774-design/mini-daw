@@ -3,9 +3,8 @@ import { useStore } from "../state/store";
 import { getAudioEngine } from "../audio/AudioEngine";
 import { decodeAndAnalyze } from "../audio/waveform";
 import { uid } from "../utils/id";
-import type { AudioAsset } from "../types";
+import type { AudioAsset, EffectType } from "../types";
 import { EFFECT_LABELS } from "../state/effects";
-import type { EffectType } from "../types";
 
 export function Sidebar() {
   const project = useStore((s) => s.project);
@@ -64,116 +63,149 @@ export function Sidebar() {
   const effectTypes: EffectType[] = ["gain", "eq3", "reverb", "delay", "speed", "pitch"];
 
   return (
-    <aside className="w-64 bg-bg-1 border-r border-bg-3 flex flex-col">
-      <div
-        className="p-3 border-b border-bg-3"
-        onDragOver={(e) => {
-          e.preventDefault();
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.files.length > 0) {
-            void handleFiles(e.dataTransfer.files);
-          }
-        }}
-      >
-        <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">Files</div>
-        <button
-          className="w-full py-1.5 rounded bg-bg-2 hover:bg-bg-3 text-sm"
-          onClick={() => fileInputRef.current?.click()}
+    <aside className="panel-shell w-full shrink-0 overflow-hidden lg:w-72 xl:w-80">
+      <div className="flex h-full min-h-[18rem] flex-col">
+        <div
+          className="border-b border-white/10 p-4"
+          onDragOver={(e) => {
+            e.preventDefault();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) {
+              void handleFiles(e.dataTransfer.files);
+            }
+          }}
         >
-          {loading ? "Loading…" : "Import audio…"}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="audio/*"
-          multiple
-          className="hidden"
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
-        />
-        <div className="text-[10px] text-gray-500 mt-1">Or drag files here</div>
-      </div>
-
-      <div className="overflow-auto flex-1 no-scrollbar">
-        <div className="p-3">
-          <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">Assets</div>
-          <div className="flex flex-col gap-1">
-            {Object.values(project.assets).length === 0 && (
-              <div className="text-xs text-gray-600">No files loaded</div>
-            )}
-            {Object.values(project.assets).map((a) => (
-              <div
-                key={a.id}
-                className="bg-bg-2 hover:bg-bg-3 rounded px-2 py-1 flex items-center justify-between gap-2 cursor-pointer"
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData("application/x-mini-daw-asset", a.id);
-                  e.dataTransfer.effectAllowed = "copy";
-                }}
-                onDoubleClick={() => addClipFromAsset(a)}
-                title="Double-click to add to selected track, or drag onto a track"
-              >
-                <span className="text-sm truncate">{a.name}</span>
-                <span className="text-[10px] text-gray-500 tabular-nums">
-                  {a.durationSec.toFixed(1)}s
-                </span>
-              </div>
-            ))}
+          <div className="section-label">Library</div>
+          <button
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[20px] border border-dashed border-emerald-400/25 bg-emerald-400/10 px-4 py-4 text-sm font-semibold text-emerald-50 hover:bg-emerald-400/15"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {loading ? "Loading..." : "Import audio"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            multiple
+            className="hidden"
+            onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          />
+          <div className="mt-2 text-xs leading-5 text-slate-400">
+            Drag audio files straight into the browser or start with the import
+            button.
           </div>
         </div>
 
-        <div className="p-3 border-t border-bg-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs uppercase text-gray-500 tracking-wider">Tracks</div>
-            <button
-              className="text-xs px-2 py-0.5 rounded bg-bg-2 hover:bg-bg-3"
-              onClick={() => addTrack()}
-            >
-              +
-            </button>
-          </div>
-          <div className="flex flex-col gap-1">
-            {project.tracks.map((t) => (
-              <button
-                key={t.id}
-                onClick={() =>
-                  setSelected({ selectedTrackId: t.id, inspectorMode: "track", selectedClipId: null })
-                }
-                className={`text-left px-2 py-1 rounded flex items-center gap-2 ${
-                  ui.selectedTrackId === t.id && ui.inspectorMode === "track"
-                    ? "bg-bg-3"
-                    : "bg-bg-2 hover:bg-bg-3"
-                }`}
-              >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: t.color }}
-                />
-                <span className="text-sm truncate">{t.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {selectedTrack && (
-          <div className="p-3 border-t border-bg-3">
-            <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">
-              Add effect → {selectedTrack.name}
-            </div>
-            <div className="grid grid-cols-2 gap-1">
-              {effectTypes.map((t) => (
+        <div className="flex-1 overflow-auto no-scrollbar">
+          <section className="p-4">
+            <div className="section-label">Assets</div>
+            <div className="mt-3 flex flex-col gap-2">
+              {Object.values(project.assets).length === 0 && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-slate-400">
+                  No files loaded yet. Import a loop or vocal take to start
+                  building the session.
+                </div>
+              )}
+              {Object.values(project.assets).map((a) => (
                 <button
-                  key={t}
-                  className="text-xs px-2 py-1 rounded bg-bg-2 hover:bg-bg-3"
-                  onClick={() => addEffect(selectedTrack.id, t)}
+                  key={a.id}
+                  className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:bg-white/[0.08]"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("application/x-mini-daw-asset", a.id);
+                    e.dataTransfer.effectAllowed = "copy";
+                  }}
+                  onDoubleClick={() => addClipFromAsset(a)}
+                  title="Double-click to add to the selected track, or drag onto the timeline."
                 >
-                  + {EFFECT_LABELS[t]}
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="min-w-0 truncate text-sm font-medium text-slate-100">
+                      {a.name}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 font-mono text-[11px] tabular-nums text-slate-300">
+                      {a.durationSec.toFixed(1)}s
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs text-slate-400">
+                    Drop onto a track or double-click to append it to the
+                    selected track.
+                  </div>
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          </section>
+
+          <section className="border-t border-white/10 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="section-label">Tracks</div>
+                <div className="mt-1 text-xs text-slate-400">
+                  Select a lane to tune routing and effects.
+                </div>
+              </div>
+              <button
+                className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/[0.1]"
+                onClick={() => addTrack()}
+              >
+                Add
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {project.tracks.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() =>
+                    setSelected({
+                      selectedTrackId: t.id,
+                      inspectorMode: "track",
+                      selectedClipId: null,
+                    })
+                  }
+                  className={`w-full rounded-2xl border px-3 py-3 text-left transition ${
+                    ui.selectedTrackId === t.id && ui.inspectorMode === "track"
+                      ? "border-emerald-400/30 bg-emerald-400/10 shadow-[0_12px_30px_rgba(74,222,128,0.12)]"
+                      : "border-white/10 bg-white/[0.03] hover:bg-white/[0.08]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="h-3 w-3 rounded-full shadow-[0_0_20px_currentColor]"
+                      style={{ background: t.color, color: t.color }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-slate-100">
+                        {t.name}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-400">
+                        {t.effects.length} effects in chain
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {selectedTrack && (
+            <section className="border-t border-white/10 p-4">
+              <div className="section-label">Add effect - {selectedTrack.name}</div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {effectTypes.map((t) => (
+                  <button
+                    key={t}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-100 hover:bg-white/[0.09]"
+                    onClick={() => addEffect(selectedTrack.id, t)}
+                  >
+                    Add {EFFECT_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
     </aside>
   );
