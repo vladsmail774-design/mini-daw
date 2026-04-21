@@ -59,22 +59,26 @@ export function Timeline({ position, onSeek }: Props) {
   }, [ui.selectedClipId, deleteClip, splitClip, project.clips, position, setSelected]);
 
   return (
-    <div className="flex-1 bg-bg-0 overflow-hidden flex flex-col">
+    <div className="flex-1 bg-bg-0 overflow-hidden flex flex-col relative">
       <div className="flex-1 overflow-auto no-scrollbar" ref={scrollRef} onWheel={onWheel}>
         <div
           className="relative"
           style={{ width: HEADER_WIDTH + bodyWidth, minHeight: RULER_HEIGHT + bodyHeight }}
         >
-          <Ruler
-            project={project}
-            pxPerSec={pxPerSec}
-            bodyWidth={bodyWidth}
-            onSeek={(sec) => onSeek(sec)}
-            setLoopRegion={(s, e) => setLoop({ enabled: true, start: s, end: e })}
-          />
+          {/* Ruler Background */}
+          <div className="sticky top-0 z-30 bg-bg-1 border-b border-bg-3" style={{ height: RULER_HEIGHT }}>
+             <Ruler
+              project={project}
+              pxPerSec={pxPerSec}
+              bodyWidth={bodyWidth}
+              onSeek={(sec) => onSeek(sec)}
+              setLoopRegion={(s, e) => setLoop({ enabled: true, start: s, end: e })}
+            />
+          </div>
 
-          <div className="absolute left-0" style={{ top: RULER_HEIGHT }}>
-            {project.tracks.map((track, i) => (
+          {/* Track Headers (Sticky Left) */}
+          <div className="sticky left-0 z-20 bg-bg-1 shadow-lg" style={{ top: RULER_HEIGHT, width: HEADER_WIDTH }}>
+            {project.tracks.map((track) => (
               <TrackHeader
                 key={track.id}
                 track={track}
@@ -90,12 +94,12 @@ export function Timeline({ position, onSeek }: Props) {
                 }
                 onChange={(patch) => updateTrack(track.id, patch)}
                 onRemove={() => removeTrack(track.id)}
-                top={i * TRACK_HEIGHT}
               />
             ))}
           </div>
 
-          <div className="absolute" style={{ left: HEADER_WIDTH, top: RULER_HEIGHT }}>
+          {/* Main Content Area */}
+          <div className="absolute" style={{ left: HEADER_WIDTH, top: RULER_HEIGHT, width: bodyWidth, height: bodyHeight }}>
             {project.tracks.map((track, i) => (
               <TrackLane
                 key={track.id}
@@ -148,7 +152,7 @@ export function Timeline({ position, onSeek }: Props) {
             {/* Loop region overlay */}
             {project.loop.enabled && (
               <div
-                className="absolute top-0 bg-accent/10 border-l border-r border-accent pointer-events-none"
+                className="absolute top-0 bg-accent/10 border-l border-r border-accent pointer-events-none z-10"
                 style={{
                   left: project.loop.start * pxPerSec,
                   width: Math.max(1, (project.loop.end - project.loop.start) * pxPerSec),
@@ -159,30 +163,35 @@ export function Timeline({ position, onSeek }: Props) {
 
             {/* Playhead */}
             <div
-              className="absolute top-0 w-px bg-accent pointer-events-none"
+              className="absolute top-0 w-px bg-accent pointer-events-none z-40"
               style={{
                 left: position * pxPerSec,
                 height: bodyHeight,
               }}
-            />
+            >
+              <div className="w-3 h-3 bg-accent rounded-full -ml-[5.5px] -mt-1.5 shadow-sm" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="h-6 bg-bg-1 border-t border-bg-3 flex items-center gap-2 px-3 text-xs text-gray-400">
-        <span>Zoom</span>
-        <input
-          type="range"
-          min={20}
-          max={400}
-          value={pxPerSec}
-          onChange={(e) => setZoom(Number(e.target.value))}
-          className="w-40"
-        />
-        <span className="tabular-nums">{pxPerSec.toFixed(0)} px/s</span>
-        <span className="ml-4 text-gray-500">
-          Ctrl+scroll to zoom · drag clips · drag right edge to trim · S to split at playhead · Del
-          to remove
+      {/* Footer / Zoom Controls */}
+      <div className="h-8 bg-bg-1 border-t border-bg-3 flex items-center gap-4 px-3 text-[10px] text-gray-400 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="uppercase tracking-wider font-bold text-gray-500">Zoom</span>
+          <input
+            type="range"
+            min={20}
+            max={500}
+            value={pxPerSec}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="w-32"
+          />
+          <span className="tabular-nums w-12">{pxPerSec.toFixed(0)} px/s</span>
+        </div>
+        <div className="h-3 w-px bg-bg-3" />
+        <span className="truncate">
+          Ctrl+Scroll to zoom · Drag clips · S to split · Del to remove · Shift+Drag Ruler for loop
         </span>
       </div>
     </div>
@@ -213,22 +222,19 @@ function Ruler({
     c.height = RULER_HEIGHT * dpr;
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, bodyWidth, RULER_HEIGHT);
-    ctx.fillStyle = "#12161b";
-    ctx.fillRect(0, 0, bodyWidth, RULER_HEIGHT);
-
+    
     const step = chooseStep(pxPerSec);
     ctx.fillStyle = "#6b7280";
     ctx.font = "10px ui-monospace, monospace";
     ctx.textBaseline = "middle";
+    
     for (let t = 0; t * pxPerSec < bodyWidth; t += step) {
       const x = t * pxPerSec;
-      ctx.fillStyle = "#2a333d";
+      ctx.fillStyle = "rgba(107, 114, 128, 0.2)";
       ctx.fillRect(x, 0, 1, RULER_HEIGHT);
       ctx.fillStyle = "#6b7280";
       ctx.fillText(fmt(t), x + 4, RULER_HEIGHT / 2);
     }
-    ctx.fillStyle = "#222a33";
-    ctx.fillRect(0, RULER_HEIGHT - 1, bodyWidth, 1);
   }, [bodyWidth, pxPerSec, project.bpm]);
 
   const isDragging = useRef(false);
@@ -264,7 +270,6 @@ function Ruler({
         isDragging.current = false;
         dragStart.current = null;
       }}
-      title="Click to seek · Shift+drag for loop region"
     >
       <canvas
         ref={canvasRef}
@@ -275,7 +280,6 @@ function Ruler({
 }
 
 function chooseStep(pxPerSec: number): number {
-  // pick grid step so lines are ~80px apart
   const targetPx = 80;
   const secPerTarget = targetPx / pxPerSec;
   const candidates = [0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30, 60];
@@ -297,48 +301,45 @@ function TrackHeader({
   onSelect,
   onChange,
   onRemove,
-  top,
 }: {
   track: Track;
   selected: boolean;
   onSelect: () => void;
   onChange: (patch: Partial<Track>) => void;
   onRemove: () => void;
-  top: number;
 }) {
   return (
     <div
-      className={`absolute left-0 border-b border-bg-3 px-2 py-1 ${
-        selected ? "bg-bg-2" : "bg-bg-1"
+      className={`border-b border-bg-3 px-2 py-1 transition-colors ${
+        selected ? "bg-bg-2" : "bg-bg-1 hover:bg-bg-2/50"
       }`}
-      style={{ top, width: HEADER_WIDTH, height: TRACK_HEIGHT }}
+      style={{ width: HEADER_WIDTH, height: TRACK_HEIGHT }}
       onMouseDown={onSelect}
     >
       <div className="flex items-center gap-1">
         <span
-          className="w-1.5 h-6 rounded-sm"
+          className="w-1.5 h-6 rounded-sm flex-shrink-0"
           style={{ background: track.color }}
         />
         <input
-          className="bg-transparent text-sm flex-1 outline-none"
+          className="bg-transparent text-xs flex-1 outline-none font-bold truncate"
           value={track.name}
           onChange={(e) => onChange({ name: e.target.value })}
         />
         <button
-          className="text-gray-500 hover:text-red-400 text-xs"
+          className="text-gray-600 hover:text-red-400 text-[10px] p-1"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
           }}
-          title="Remove track"
         >
           ✕
         </button>
       </div>
-      <div className="flex items-center gap-1 mt-1">
+      <div className="flex items-center gap-1 mt-2">
         <button
-          className={`text-[10px] px-1.5 py-0.5 rounded ${
-            track.mute ? "bg-red-500/80 text-black" : "bg-bg-3 text-gray-300"
+          className={`text-[9px] w-5 h-5 flex items-center justify-center rounded font-bold transition-colors ${
+            track.mute ? "bg-red-500 text-black" : "bg-bg-3 text-gray-400 hover:bg-bg-3/80"
           }`}
           onClick={(e) => {
             e.stopPropagation();
@@ -348,8 +349,8 @@ function TrackHeader({
           M
         </button>
         <button
-          className={`text-[10px] px-1.5 py-0.5 rounded ${
-            track.solo ? "bg-yellow-400 text-black" : "bg-bg-3 text-gray-300"
+          className={`text-[9px] w-5 h-5 flex items-center justify-center rounded font-bold transition-colors ${
+            track.solo ? "bg-yellow-400 text-black" : "bg-bg-3 text-gray-400 hover:bg-bg-3/80"
           }`}
           onClick={(e) => {
             e.stopPropagation();
@@ -365,13 +366,12 @@ function TrackHeader({
           step={0.5}
           value={track.volumeDb}
           onChange={(e) => onChange({ volumeDb: Number(e.target.value) })}
-          className="flex-1"
+          className="flex-1 h-1"
           onClick={(e) => e.stopPropagation()}
-          title={`${track.volumeDb.toFixed(1)} dB`}
         />
       </div>
-      <div className="flex items-center gap-1 mt-1 text-[10px] text-gray-500">
-        <span>Pan</span>
+      <div className="flex items-center gap-1 mt-2 text-[9px] text-gray-500">
+        <span className="uppercase tracking-tighter">Pan</span>
         <input
           type="range"
           min={-1}
@@ -379,7 +379,7 @@ function TrackHeader({
           step={0.01}
           value={track.pan}
           onChange={(e) => onChange({ pan: Number(e.target.value) })}
-          className="flex-1"
+          className="flex-1 h-1"
           onClick={(e) => e.stopPropagation()}
         />
         <span className="tabular-nums w-6 text-right">{track.pan.toFixed(2)}</span>
@@ -404,8 +404,8 @@ function TrackLane({
   const [dragHover, setDragHover] = useState(false);
   return (
     <div
-      className={`absolute border-b border-bg-3 ${dragHover ? "bg-accent/5" : ""}`}
-      style={{ top, width, height: TRACK_HEIGHT, background: "rgba(0,0,0,0.2)" }}
+      className={`absolute border-b border-bg-3 transition-colors ${dragHover ? "bg-accent/5" : ""}`}
+      style={{ top, width, height: TRACK_HEIGHT, background: "rgba(0,0,0,0.1)" }}
       onDragOver={(e) => {
         if (e.dataTransfer.types.includes("application/x-mini-daw-asset")) {
           e.preventDefault();
@@ -424,7 +424,6 @@ function TrackLane({
         onDropAsset(assetId, sec);
       }}
     >
-      {/* subtle grid */}
       <GridOverlay pxPerSec={pxPerSec} width={width} trackColor={track.color} />
     </div>
   );
@@ -450,7 +449,7 @@ function GridOverlay({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, TRACK_HEIGHT);
     const step = chooseStep(pxPerSec);
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.strokeStyle = "rgba(255,255,255,0.03)";
     for (let t = 0; t * pxPerSec < width; t += step) {
       const x = t * pxPerSec;
       ctx.beginPath();
@@ -458,7 +457,7 @@ function GridOverlay({
       ctx.lineTo(x + 0.5, TRACK_HEIGHT);
       ctx.stroke();
     }
-    ctx.strokeStyle = trackColor + "22";
+    ctx.strokeStyle = trackColor + "15";
     ctx.beginPath();
     ctx.moveTo(0, TRACK_HEIGHT / 2 + 0.5);
     ctx.lineTo(width, TRACK_HEIGHT / 2 + 0.5);
@@ -507,7 +506,7 @@ function ClipView({
   const width = Math.max(2, clip.duration * pxPerSec);
   const top = trackIndex * TRACK_HEIGHT + 4;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const bg = useMemo(() => hexToRgba(clip.color ?? track.color, 0.25), [clip.color, track.color]);
+  const bg = useMemo(() => hexToRgba(clip.color ?? track.color, 0.3), [clip.color, track.color]);
   const border = clip.color ?? track.color;
 
   useLayoutEffect(() => {
@@ -515,7 +514,7 @@ function ClipView({
     if (!c || !peaks) return;
     const ctx = c.getContext("2d")!;
     const dpr = window.devicePixelRatio || 1;
-    const h = TRACK_HEIGHT - 20;
+    const h = TRACK_HEIGHT - 24;
     c.width = width * dpr;
     c.height = h * dpr;
     ctx.scale(dpr, dpr);
@@ -594,8 +593,8 @@ function ClipView({
 
   return (
     <div
-      className={`absolute rounded-md overflow-hidden group ${
-        selected ? "ring-2 ring-accent" : ""
+      className={`absolute rounded-md overflow-hidden group transition-shadow ${
+        selected ? "ring-2 ring-accent shadow-lg z-10" : "hover:shadow-md"
       }`}
       style={{
         left,
@@ -617,29 +616,28 @@ function ClipView({
         if (e.key === "Delete" || e.key === "Backspace") onDelete();
       }}
       tabIndex={0}
-      title={`${clip.duration.toFixed(2)}s · double-click to split`}
     >
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-1.5 py-0.5 text-[10px] bg-black/30">
-        <span className="truncate">{track.name}</span>
-        <span className="tabular-nums">{clip.duration.toFixed(2)}s</span>
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-1.5 py-0.5 text-[9px] bg-black/40 backdrop-blur-sm">
+        <span className="truncate font-bold">{track.name}</span>
+        <span className="tabular-nums opacity-80">{clip.duration.toFixed(2)}s</span>
       </div>
       <canvas
         ref={canvasRef}
         style={{
           position: "absolute",
-          top: 16,
+          top: 18,
           left: 0,
           width: "100%",
-          height: TRACK_HEIGHT - 28,
+          height: TRACK_HEIGHT - 32,
           display: "block",
         }}
       />
       <div
-        className="absolute top-0 left-0 w-1 h-full cursor-ew-resize bg-white/0 hover:bg-white/20"
+        className="absolute top-0 left-0 w-1.5 h-full cursor-ew-resize bg-white/0 hover:bg-white/20 transition-colors"
         onMouseDown={onResizeDown("left")}
       />
       <div
-        className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-white/0 hover:bg-white/20"
+        className="absolute top-0 right-0 w-1.5 h-full cursor-ew-resize bg-white/0 hover:bg-white/20 transition-colors"
         onMouseDown={onResizeDown("right")}
       />
     </div>
