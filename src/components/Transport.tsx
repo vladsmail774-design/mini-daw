@@ -52,7 +52,10 @@ export function Transport({ isPlaying, position, play, pause, stop, seek }: Prop
     } else {
       const mp3 = await audioBufferToMp3Blob(rendered);
       if (mp3) downloadBlob(mp3, "mini-daw-export.mp3");
-      else alert("MP3 encoder unavailable — exporting WAV instead.");
+      else {
+        alert("MP3 encoder unavailable — exporting WAV instead.");
+        downloadBlob(audioBufferToWavBlob(rendered), "mini-daw-export.wav");
+      }
     }
   };
 

@@ -40,6 +40,9 @@ export async function renderProject(
 
     // Build effect chain (without speed/pitch — those go on source).
     const effectInstances = track.effects.map((e) => createEffectInstance(ctx, e));
+    if (effectInstances.length > 0) {
+      input.disconnect(volume);
+    }
     let prev: AudioNode = input;
     for (const inst of effectInstances) {
       prev.connect(inst.input);
