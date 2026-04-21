@@ -134,12 +134,17 @@ export const useStore = create<StoreState>((set, get) => ({
       const color = TRACK_COLORS[p.tracks.length % TRACK_COLORS.length];
       return { ...p, tracks: [...p.tracks, makeTrack(`Track ${p.tracks.length + 1}`, color)] };
     }),
-  removeTrack: (trackId) =>
+  removeTrack: (trackId) => {
+    const { ui, setSelected } = get();
+    if (ui.selectedTrackId === trackId) {
+      setSelected({ selectedTrackId: null, inspectorMode: "track" });
+    }
     get().commit((p) => ({
       ...p,
       tracks: p.tracks.filter((t) => t.id !== trackId),
       clips: p.clips.filter((c) => c.trackId !== trackId),
-    })),
+    }));
+  },
   setSelected: (sel) => set({ ui: { ...get().ui, ...sel } }),
   addAsset: (asset) =>
     get().mutate((p) => ({

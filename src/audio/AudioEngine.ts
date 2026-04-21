@@ -38,6 +38,7 @@ export class AudioEngine {
   private _position = 0;
   private rafId: number | null = null;
   private onTick: ((pos: number) => void) | null = null;
+  private onStateChange: ((playing: boolean) => void) | null = null;
   private lastSnapshot: ProjectState | null = null;
   private loopTimer: number | null = null;
 
@@ -64,6 +65,10 @@ export class AudioEngine {
     this.onTick = fn;
   }
 
+  setOnStateChange(fn: ((playing: boolean) => void) | null) {
+    this.onStateChange = fn;
+  }
+
   async resume() {
     if (this.ctx.state !== "running") await this.ctx.resume();
   }
@@ -80,7 +85,7 @@ export class AudioEngine {
    * Builds or updates a track's signal chain:
    *   sources -> [effects chain] -> volume -> pan -> master
    */
-  ensureTrackChain(track: Track): {
+  ensureTrackChain(track: Track, snapshot?: ProjectState): {
     input: GainNode;
   } {
     let chain = this.trackChains.get(track.id);
@@ -95,22 +100,26 @@ export class AudioEngine {
       this.trackChains.set(track.id, chain);
     }
     this.rebuildEffectChain(track, chain);
-    this.applyTrackParams(track, chain);
+    this.applyTrackParams(track, chain, snapshot);
     return { input: chain.input };
   }
 
   private applyTrackParams(
     track: Track,
     chain: NonNullable<ReturnType<AudioEngine["trackChains"]["get"]>>,
+    snapshot?: ProjectState,
   ) {
-    const effectiveMute = track.mute || (this.hasSolo() && !track.solo);
-    chain.volume.gain.value = effectiveMute ? 0 : dbToGain(track.volumeDb);
-    chain.pan.pan.value = Math.max(-1, Math.min(1, track.pan));
+    const effectiveMute = track.mute || (this.hasSolo(snapshot) && !track.solo);
+    const targetGain = effectiveMute ? 0 : dbToGain(track.volumeDb);
+    // Use a small ramp to avoid clicks
+    chain.volume.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.02);
+    chain.pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, track.pan)), this.ctx.currentTime, 0.02);
   }
 
-  private hasSolo(): boolean {
-    if (!this.lastSnapshot) return false;
-    return this.lastSnapshot.tracks.some((t) => t.solo);
+  private hasSolo(snapshot?: ProjectState): boolean {
+    const s = snapshot || this.lastSnapshot;
+    if (!s) return false;
+    return s.tracks.some((t) => t.solo);
   }
 
   private rebuildEffectChain(
@@ -211,7 +220,7 @@ export class AudioEngine {
     this.positionAtStart = startPos;
 
     // Build / update chains for every track before scheduling sources.
-    for (const t of snapshot.tracks) this.ensureTrackChain(t);
+    for (const t of snapshot.tracks) this.ensureTrackChain(t, snapshot);
 
     // Schedule each clip that overlaps the play window.
     const loopEnabled = snapshot.loop.enabled && snapshot.loop.end > snapshot.loop.start;
@@ -252,16 +261,18 @@ export class AudioEngine {
     }
 
     this._isPlaying = true;
+    if (this.onStateChange) this.onStateChange(true);
 
     if (loopEnabled) {
-      const dur = snapshot.loop.end - startPos;
+      const dur = (snapshot.loop.end - startPos);
+      // We use a slightly shorter timeout and check position in ticker for better accuracy
       this.loopTimer = window.setTimeout(
         () => {
           if (!this._isPlaying) return;
           this.stop();
           this.play(snapshot, snapshot.loop.start);
         },
-        Math.max(50, dur * 1000),
+        Math.max(10, dur * 1000 - 20),
       );
     }
 
@@ -286,6 +297,7 @@ export class AudioEngine {
     this._position = pos;
     this.stopAllSources();
     this._isPlaying = false;
+    if (this.onStateChange) this.onStateChange(false);
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = null;
   }
@@ -293,6 +305,7 @@ export class AudioEngine {
   stop() {
     this.stopAllSources();
     this._isPlaying = false;
+    if (this.onStateChange) this.onStateChange(false);
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = null;
   }

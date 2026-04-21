@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { useStore } from "../state/store";
 import type { Clip, Track } from "../types";
 
@@ -58,6 +58,60 @@ export function Timeline({ position, onSeek }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [ui.selectedClipId, deleteClip, splitClip, project.clips, position, setSelected]);
 
+  // Memoize static parts of the timeline to avoid re-renders on position change
+  const tracksContent = useMemo(() => (
+    <>
+      {project.tracks.map((track, i) => (
+        <TrackLane
+          key={track.id}
+          track={track}
+          top={i * TRACK_HEIGHT}
+          width={bodyWidth}
+          pxPerSec={pxPerSec}
+          onDropAsset={(assetId, sec) => {
+            const asset = project.assets[assetId];
+            if (!asset) return;
+            addClip({
+              trackId: track.id,
+              assetId,
+              start: Math.max(0, sec),
+              offset: 0,
+              duration: asset.durationSec,
+            });
+          }}
+        />
+      ))}
+
+      {project.clips.map((clip) => (
+        <ClipView
+          key={clip.id}
+          clip={clip}
+          track={project.tracks.find((t) => t.id === clip.trackId)!}
+          trackIndex={project.tracks.findIndex((t) => t.id === clip.trackId)}
+          pxPerSec={pxPerSec}
+          selected={ui.selectedClipId === clip.id}
+          onSelect={() =>
+            setSelected({
+              selectedClipId: clip.id,
+              selectedTrackId: clip.trackId,
+              inspectorMode: "clip",
+            })
+          }
+          onMove={(newStart, newTrackId) => moveClip(clip.id, newStart, newTrackId)}
+          onResize={(start, duration, offset) =>
+            resizeClip(clip.id, start, duration, offset)
+          }
+          onSplit={(atSec) => splitClip(clip.id, atSec)}
+          onDelete={() => deleteClip(clip.id)}
+          tracks={project.tracks}
+          peaks={project.assets[clip.assetId]?.peaks ?? null}
+          peaksPerSecond={project.assets[clip.assetId]?.peaksPerSecond ?? 200}
+          assetOffsetSec={clip.offset}
+        />
+      ))}
+    </>
+  ), [project.tracks, project.clips, project.assets, pxPerSec, ui.selectedClipId, bodyWidth, addClip, moveClip, resizeClip, splitClip, deleteClip, setSelected]);
+
   return (
     <div className="flex-1 bg-bg-0 overflow-hidden flex flex-col relative">
       <div className="flex-1 overflow-auto no-scrollbar" ref={scrollRef} onWheel={onWheel}>
@@ -100,54 +154,7 @@ export function Timeline({ position, onSeek }: Props) {
 
           {/* Main Content Area */}
           <div className="absolute" style={{ left: HEADER_WIDTH, top: RULER_HEIGHT, width: bodyWidth, height: bodyHeight }}>
-            {project.tracks.map((track, i) => (
-              <TrackLane
-                key={track.id}
-                track={track}
-                top={i * TRACK_HEIGHT}
-                width={bodyWidth}
-                pxPerSec={pxPerSec}
-                onDropAsset={(assetId, sec) => {
-                  const asset = project.assets[assetId];
-                  if (!asset) return;
-                  addClip({
-                    trackId: track.id,
-                    assetId,
-                    start: Math.max(0, sec),
-                    offset: 0,
-                    duration: asset.durationSec,
-                  });
-                }}
-              />
-            ))}
-
-            {project.clips.map((clip) => (
-              <ClipView
-                key={clip.id}
-                clip={clip}
-                track={project.tracks.find((t) => t.id === clip.trackId)!}
-                trackIndex={project.tracks.findIndex((t) => t.id === clip.trackId)}
-                pxPerSec={pxPerSec}
-                selected={ui.selectedClipId === clip.id}
-                onSelect={() =>
-                  setSelected({
-                    selectedClipId: clip.id,
-                    selectedTrackId: clip.trackId,
-                    inspectorMode: "clip",
-                  })
-                }
-                onMove={(newStart, newTrackId) => moveClip(clip.id, newStart, newTrackId)}
-                onResize={(start, duration, offset) =>
-                  resizeClip(clip.id, start, duration, offset)
-                }
-                onSplit={(atSec) => splitClip(clip.id, atSec)}
-                onDelete={() => deleteClip(clip.id)}
-                tracks={project.tracks}
-                peaks={project.assets[clip.assetId]?.peaks ?? null}
-                peaksPerSecond={project.assets[clip.assetId]?.peaksPerSecond ?? 200}
-                assetOffsetSec={clip.offset}
-              />
-            ))}
+            {tracksContent}
 
             {/* Loop region overlay */}
             {project.loop.enabled && (
@@ -162,15 +169,7 @@ export function Timeline({ position, onSeek }: Props) {
             )}
 
             {/* Playhead */}
-            <div
-              className="absolute top-0 w-px bg-accent pointer-events-none z-40"
-              style={{
-                left: position * pxPerSec,
-                height: bodyHeight,
-              }}
-            >
-              <div className="w-3 h-3 bg-accent rounded-full -ml-[5.5px] -mt-1.5 shadow-sm" />
-            </div>
+            <Playhead position={position} pxPerSec={pxPerSec} height={bodyHeight} />
           </div>
         </div>
       </div>
@@ -278,6 +277,18 @@ function Ruler({
     </div>
   );
 }
+
+const Playhead = memo(({ position, pxPerSec, height }: { position: number; pxPerSec: number; height: number }) => (
+  <div
+    className="absolute top-0 w-px bg-accent pointer-events-none z-40"
+    style={{
+      left: position * pxPerSec,
+      height: height,
+    }}
+  >
+    <div className="w-3 h-3 bg-accent rounded-full -ml-[5.5px] -mt-1.5 shadow-sm" />
+  </div>
+));
 
 function chooseStep(pxPerSec: number): number {
   const targetPx = 80;
