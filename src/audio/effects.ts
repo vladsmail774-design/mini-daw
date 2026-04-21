@@ -16,27 +16,28 @@ export interface EffectInstance {
 
 type AC = BaseAudioContext;
 
-function makeWetDry(ctx: AC, processor: AudioNode) {
+function makeWetDry(ctx: AC, processorInput: AudioNode, processorOutput: AudioNode = processorInput) {
   // input -> split -> [dry gain, wet chain -> wet gain] -> sum (output)
   const input = ctx.createGain();
   const output = ctx.createGain();
   const dry = ctx.createGain();
   const wet = ctx.createGain();
   input.connect(dry).connect(output);
-  input.connect(processor);
-  processor.connect(wet).connect(output);
+  input.connect(processorInput);
+  processorOutput.connect(wet).connect(output);
   return { input, output, dry, wet };
 }
 
-function setWet(dry: GainNode, wet: GainNode, w: number, bypass: boolean) {
+function setWet(ctx: AC, dry: GainNode, wet: GainNode, w: number, bypass: boolean) {
+  const now = ctx.currentTime;
   if (bypass) {
-    dry.gain.value = 1;
-    wet.gain.value = 0;
+    dry.gain.setTargetAtTime(1, now, 0.02);
+    wet.gain.setTargetAtTime(0, now, 0.02);
     return;
   }
   const clamped = Math.max(0, Math.min(1, w));
-  dry.gain.value = 1 - clamped;
-  wet.gain.value = clamped;
+  dry.gain.setTargetAtTime(1 - clamped, now, 0.02);
+  wet.gain.setTargetAtTime(clamped, now, 0.02);
 }
 
 export function createEffectInstance(
@@ -88,8 +89,8 @@ function createGain(ctx: AC, eff: Effect): EffectInstance {
     output,
     update(next) {
       if (next.type !== "gain") return;
-      g.gain.value = dbToLin(next.gainDb);
-      setWet(dry, wet, next.wet, next.bypass);
+      g.gain.setTargetAtTime(dbToLin(next.gainDb), ctx.currentTime, 0.02);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
     },
     dispose() {
       input.disconnect();
@@ -110,17 +111,7 @@ function createEq3(ctx: AC, eff: Effect): EffectInstance {
   const high = ctx.createBiquadFilter();
   high.type = "highshelf";
   low.connect(mid).connect(high);
-  const { input, output, dry, wet } = makeWetDry(ctx, low);
-  // override: processor output is `high`, not `low`
-  // Rewire: input -> low, high -> wet, keep dry path
-  // makeWetDry already did: input->low, low->wet->output (wrong for chain).
-  // Fix by disconnecting low->wet and wiring high->wet instead.
-  try {
-    low.disconnect(wet);
-  } catch {
-    /* not all browsers track this disconnect correctly; safe to ignore */
-  }
-  high.connect(wet);
+  const { input, output, dry, wet } = makeWetDry(ctx, low, high);
 
   const inst: EffectInstance = {
     id: eff.id,
@@ -128,13 +119,14 @@ function createEq3(ctx: AC, eff: Effect): EffectInstance {
     output,
     update(next) {
       if (next.type !== "eq3") return;
-      low.frequency.value = next.lowFreqHz;
-      low.gain.value = next.lowGainDb;
-      mid.frequency.value = next.midFreqHz;
-      mid.gain.value = next.midGainDb;
-      high.frequency.value = next.highFreqHz;
-      high.gain.value = next.highGainDb;
-      setWet(dry, wet, next.wet, next.bypass);
+      const now = ctx.currentTime;
+      low.frequency.setTargetAtTime(next.lowFreqHz, now, 0.02);
+      low.gain.setTargetAtTime(next.lowGainDb, now, 0.02);
+      mid.frequency.setTargetAtTime(next.midFreqHz, now, 0.02);
+      mid.gain.setTargetAtTime(next.midGainDb, now, 0.02);
+      high.frequency.setTargetAtTime(next.highFreqHz, now, 0.02);
+      high.gain.setTargetAtTime(next.highGainDb, now, 0.02);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
     },
     dispose() {
       input.disconnect();
@@ -170,7 +162,7 @@ function createReverb(ctx: AC, eff: Effect): EffectInstance {
         lastDecay = next.decaySec;
         lastPre = next.preDelayMs;
       }
-      setWet(dry, wet, next.wet, next.bypass);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
     },
     dispose() {
       input.disconnect();
@@ -194,9 +186,10 @@ function createDelay(ctx: AC, eff: Effect): EffectInstance {
     output,
     update(next) {
       if (next.type !== "delay") return;
-      delay.delayTime.value = Math.max(0, Math.min(4.9, next.timeSec));
-      feedback.gain.value = Math.max(0, Math.min(0.95, next.feedback));
-      setWet(dry, wet, next.wet, next.bypass);
+      const now = ctx.currentTime;
+      delay.delayTime.setTargetAtTime(Math.max(0, Math.min(4.9, next.timeSec)), now, 0.02);
+      feedback.gain.setTargetAtTime(Math.max(0, Math.min(0.95, next.feedback)), now, 0.02);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
     },
     dispose() {
       input.disconnect();
@@ -233,8 +226,9 @@ export function makeImpulseResponse(
         ch[i] = 0;
       } else {
         const t = (i - preDelaySamples) / sr;
-        const env = Math.pow(1 - t / decaySec, 2);
-        ch[i] = (Math.random() * 2 - 1) * Math.max(0, env);
+        // Use exponential decay for more natural reverb
+        const env = Math.exp(-t * 6.9 / decaySec); 
+        ch[i] = (Math.random() * 2 - 1) * env;
       }
     }
   }
