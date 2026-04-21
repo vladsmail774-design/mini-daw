@@ -57,87 +57,92 @@ export function Transport({ isPlaying, position, play, pause, stop, seek }: Prop
   };
 
   return (
-    <div className="h-14 bg-bg-1 border-b border-bg-3 flex items-center gap-3 px-3 font-mono text-sm">
-      <button
-        onClick={() => stop()}
-        className="w-9 h-9 rounded bg-bg-2 hover:bg-bg-3 grid place-items-center"
-        title="Stop"
-        data-testid="transport-stop"
-      >
-        <Icon name="stop" />
-      </button>
-      <button
-        onClick={() => (isPlaying ? pause() : void play())}
-        className="w-9 h-9 rounded bg-accent text-black hover:bg-accent-600 grid place-items-center"
-        title={isPlaying ? "Pause (Space)" : "Play (Space)"}
-        data-testid="transport-play"
-      >
-        <Icon name={isPlaying ? "pause" : "play"} />
-      </button>
-      <button
-        onClick={() => seek(0)}
-        className="w-9 h-9 rounded bg-bg-2 hover:bg-bg-3 grid place-items-center"
-        title="Rewind"
-      >
-        <Icon name="rewind" />
-      </button>
+    <div className="h-14 bg-bg-1 border-b border-bg-3 flex items-center gap-2 px-3 font-mono text-sm flex-shrink-0 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <button
+          onClick={() => stop()}
+          className="w-9 h-9 rounded bg-bg-2 hover:bg-bg-3 grid place-items-center transition-colors"
+          title="Stop"
+        >
+          <Icon name="stop" />
+        </button>
+        <button
+          onClick={() => (isPlaying ? pause() : void play())}
+          className="w-9 h-9 rounded bg-accent text-black hover:bg-accent-600 grid place-items-center transition-colors"
+          title={isPlaying ? "Pause (Space)" : "Play (Space)"}
+        >
+          <Icon name={isPlaying ? "pause" : "play"} />
+        </button>
+        <button
+          onClick={() => seek(0)}
+          className="w-9 h-9 rounded bg-bg-2 hover:bg-bg-3 grid place-items-center transition-colors"
+          title="Rewind"
+        >
+          <Icon name="rewind" />
+        </button>
+      </div>
 
-      <div className="ml-2 text-gray-300 tabular-nums" data-testid="transport-time">
+      <div className="ml-2 text-gray-300 tabular-nums w-20 text-center flex-shrink-0">
         {formatTime(position)}
       </div>
 
-      <div className="mx-3 h-8 w-px bg-bg-3" />
+      <div className="mx-2 h-8 w-px bg-bg-3 flex-shrink-0" />
 
-      <label className="flex items-center gap-2 text-gray-300">
-        <input
-          type="checkbox"
-          checked={loop.enabled}
-          onChange={(e) => setLoop({ enabled: e.target.checked })}
-        />
-        Loop
-      </label>
-      <div className="flex items-center gap-1 text-gray-400">
-        <span>start</span>
-        <input
-          type="number"
-          step={0.1}
-          value={loop.start.toFixed(2)}
-          onChange={(e) => setLoop({ start: Math.max(0, Number(e.target.value)) })}
-          className="w-16 bg-bg-2 px-1 rounded text-gray-200"
-        />
-        <span>end</span>
-        <input
-          type="number"
-          step={0.1}
-          value={loop.end.toFixed(2)}
-          onChange={(e) => setLoop({ end: Math.max(loop.start + 0.1, Number(e.target.value)) })}
-          className="w-16 bg-bg-2 px-1 rounded text-gray-200"
-        />
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <label className="flex items-center gap-2 text-gray-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={loop.enabled}
+            onChange={(e) => setLoop({ enabled: e.target.checked })}
+            className="accent-accent"
+          />
+          Loop
+        </label>
+        <div className="flex items-center gap-1 text-gray-400 text-xs">
+          <span>start</span>
+          <input
+            type="number"
+            step={0.1}
+            value={loop.start.toFixed(2)}
+            onChange={(e) => setLoop({ start: Math.max(0, Number(e.target.value)) })}
+            className="w-14 bg-bg-2 px-1 rounded text-gray-200 outline-none focus:ring-1 ring-accent/50"
+          />
+          <span>end</span>
+          <input
+            type="number"
+            step={0.1}
+            value={loop.end.toFixed(2)}
+            onChange={(e) => setLoop({ end: Math.max(loop.start + 0.1, Number(e.target.value)) })}
+            className="w-14 bg-bg-2 px-1 rounded text-gray-200 outline-none focus:ring-1 ring-accent/50"
+          />
+        </div>
       </div>
 
-      <div className="mx-3 h-8 w-px bg-bg-3" />
+      <div className="mx-2 h-8 w-px bg-bg-3 flex-shrink-0" />
 
-      <button
-        className="px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 disabled:opacity-40"
-        onClick={() => undo()}
-        disabled={pastLen === 0}
-        title="Undo (Ctrl+Z)"
-      >
-        Undo
-      </button>
-      <button
-        className="px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 disabled:opacity-40"
-        onClick={() => redo()}
-        disabled={futureLen === 0}
-        title="Redo (Ctrl+Y)"
-      >
-        Redo
-      </button>
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <button
+          className="px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 disabled:opacity-30 transition-opacity"
+          onClick={() => undo()}
+          disabled={pastLen === 0}
+          title="Undo (Ctrl+Z)"
+        >
+          Undo
+        </button>
+        <button
+          className="px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 disabled:opacity-30 transition-opacity"
+          onClick={() => redo()}
+          disabled={futureLen === 0}
+          title="Redo (Ctrl+Y)"
+        >
+          Redo
+        </button>
+      </div>
 
-      <div className="mx-3 h-8 w-px bg-bg-3" />
+      <div className="mx-2 h-8 w-px bg-bg-3 flex-shrink-0" />
 
-      <label className="flex items-center gap-2 text-gray-300">
-        Master
+      <label className="flex items-center gap-2 text-gray-300 flex-shrink-0">
+        <span className="text-xs uppercase text-gray-500">Master</span>
         <input
           type="range"
           min={-60}
@@ -145,25 +150,25 @@ export function Transport({ isPlaying, position, play, pause, stop, seek }: Prop
           step={0.5}
           value={masterVolumeDb}
           onChange={(e) => setMasterVolumeDb(Number(e.target.value))}
-          className="w-28"
+          className="w-24"
         />
-        <span className="tabular-nums w-12 text-right text-gray-400">
+        <span className="tabular-nums w-12 text-right text-gray-400 text-xs">
           {masterVolumeDb.toFixed(1)}dB
         </span>
       </label>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => doExport("wav")}
-          className="px-3 py-1.5 rounded bg-bg-2 hover:bg-bg-3"
+          className="px-3 py-1.5 rounded bg-bg-2 hover:bg-bg-3 text-xs transition-colors"
         >
-          Export WAV
+          WAV
         </button>
         <button
           onClick={() => doExport("mp3")}
-          className="px-3 py-1.5 rounded bg-bg-2 hover:bg-bg-3"
+          className="px-3 py-1.5 rounded bg-bg-2 hover:bg-bg-3 text-xs transition-colors"
         >
-          Export MP3
+          MP3
         </button>
       </div>
     </div>
