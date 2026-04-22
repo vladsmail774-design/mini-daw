@@ -242,7 +242,7 @@ export class AudioEngine {
       const segEnd = Math.min(clipEnd, windowEnd);
       if (segEnd <= segStart) continue;
 
-      const whenOffsetSec = (segStart - startPos) / mods.rate;
+      const whenOffsetSec = segStart - startPos;
       const offsetIntoSource = clip.offset + (segStart - clip.start);
       const segDuration = segEnd - segStart;
       const playDuration = segDuration / mods.rate;
