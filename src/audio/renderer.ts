@@ -1,15 +1,22 @@
-import type { ProjectState } from "../types";
+import type { ProjectState, Track } from "../types";
 import { createEffectInstance } from "./effects";
 import { dbToGain } from "../utils/audio";
 
-/**
- * Renders the full project to a single stereo AudioBuffer using an
- * OfflineAudioContext. Mirrors the live graph in AudioEngine.
- */
+export interface RenderOptions {
+  sampleRate?: number;
+  endSec?: number;
+  /** Render only this single track (used for stems export). */
+  isolateTrackId?: string;
+  /** Apply master effects chain (default: true). */
+  includeMaster?: boolean;
+  /** Loudness target normalization (peak in dBFS). null = no normalize. */
+  normalizePeakDb?: number | null;
+}
+
 export async function renderProject(
   project: ProjectState,
   buffers: Map<string, AudioBuffer>,
-  opts: { sampleRate?: number; endSec?: number } = {},
+  opts: RenderOptions = {},
 ): Promise<AudioBuffer> {
   const sampleRate = opts.sampleRate ?? 44100;
   const endSec =
@@ -24,11 +31,27 @@ export async function renderProject(
 
   const master = ctx.createGain();
   master.gain.value = dbToGain(project.masterVolumeDb);
-  master.connect(ctx.destination);
+
+  const includeMaster = opts.includeMaster !== false;
+  if (includeMaster && project.masterEffects && project.masterEffects.length > 0) {
+    const masterFx = project.masterEffects.map((e) => createEffectInstance(ctx, e));
+    let prev: AudioNode = master;
+    for (const inst of masterFx) {
+      prev.connect(inst.input);
+      prev = inst.output;
+    }
+    prev.connect(ctx.destination);
+  } else {
+    master.connect(ctx.destination);
+  }
 
   const hasSolo = project.tracks.some((t) => t.solo);
 
-  for (const track of project.tracks) {
+  const tracksToRender: Track[] = opts.isolateTrackId
+    ? project.tracks.filter((t) => t.id === opts.isolateTrackId)
+    : project.tracks;
+
+  for (const track of tracksToRender) {
     const input = ctx.createGain();
     const volume = ctx.createGain();
     const pan = ctx.createStereoPanner();
@@ -38,7 +61,6 @@ export async function renderProject(
     volume.gain.value = effectiveMute ? 0 : dbToGain(track.volumeDb);
     pan.pan.value = Math.max(-1, Math.min(1, track.pan));
 
-    // Build effect chain (without speed/pitch — those go on source).
     const effectInstances = track.effects.map((e) => createEffectInstance(ctx, e));
     if (effectInstances.length > 0) {
       input.disconnect(volume);
@@ -78,14 +100,45 @@ export async function renderProject(
     }
   }
 
-  return await ctx.startRendering();
+  const rendered = await ctx.startRendering();
+
+  if (typeof opts.normalizePeakDb === "number") {
+    return normalizeToPeakDb(rendered, opts.normalizePeakDb);
+  }
+  return rendered;
 }
 
-/** Encode AudioBuffer to a WAV (PCM 16-bit) Blob. */
-export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
+/** Scale the buffer in place so the absolute peak hits `peakDb` dBFS. */
+function normalizeToPeakDb(buffer: AudioBuffer, peakDb: number): AudioBuffer {
+  let peak = 0;
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const ch = buffer.getChannelData(c);
+    for (let i = 0; i < ch.length; i++) {
+      const v = Math.abs(ch[i]);
+      if (v > peak) peak = v;
+    }
+  }
+  if (peak <= 1e-6) return buffer;
+  const target = Math.pow(10, peakDb / 20);
+  const gain = target / peak;
+  if (Math.abs(gain - 1) < 1e-3) return buffer;
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const ch = buffer.getChannelData(c);
+    for (let i = 0; i < ch.length; i++) ch[i] *= gain;
+  }
+  return buffer;
+}
+
+/** Encode AudioBuffer to a WAV PCM Blob (16-bit or 24-bit). */
+export function audioBufferToWavBlob(
+  buffer: AudioBuffer,
+  bitDepth: 16 | 24 = 16,
+): Blob {
   const numChannels = buffer.numberOfChannels;
   const sampleRate = buffer.sampleRate;
-  const length = buffer.length * numChannels * 2 + 44;
+  const bytesPerSample = bitDepth / 8;
+  const dataLen = buffer.length * numChannels * bytesPerSample;
+  const length = dataLen + 44;
   const arr = new ArrayBuffer(length);
   const view = new DataView(arr);
 
@@ -101,22 +154,36 @@ export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
   view.setUint16(20, 1, true); // PCM
   view.setUint16(22, numChannels, true);
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * numChannels * 2, true);
-  view.setUint16(32, numChannels * 2, true);
-  view.setUint16(34, 16, true);
+  view.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
+  view.setUint16(32, numChannels * bytesPerSample, true);
+  view.setUint16(34, bitDepth, true);
   writeStr(36, "data");
-  view.setUint32(40, length - 44, true);
+  view.setUint32(40, dataLen, true);
 
-  // Interleave channels.
   let offset = 44;
   const channels: Float32Array[] = [];
   for (let c = 0; c < numChannels; c++) channels.push(buffer.getChannelData(c));
-  for (let i = 0; i < buffer.length; i++) {
-    for (let c = 0; c < numChannels; c++) {
-      let s = Math.max(-1, Math.min(1, channels[c][i]));
-      s = s < 0 ? s * 0x8000 : s * 0x7fff;
-      view.setInt16(offset, s, true);
-      offset += 2;
+
+  if (bitDepth === 16) {
+    for (let i = 0; i < buffer.length; i++) {
+      for (let c = 0; c < numChannels; c++) {
+        let s = Math.max(-1, Math.min(1, channels[c][i]));
+        s = s < 0 ? s * 0x8000 : s * 0x7fff;
+        view.setInt16(offset, s, true);
+        offset += 2;
+      }
+    }
+  } else {
+    // 24-bit signed little-endian.
+    for (let i = 0; i < buffer.length; i++) {
+      for (let c = 0; c < numChannels; c++) {
+        const f = Math.max(-1, Math.min(1, channels[c][i]));
+        const s = Math.round(f < 0 ? f * 0x800000 : f * 0x7fffff);
+        view.setUint8(offset, s & 0xff);
+        view.setUint8(offset + 1, (s >> 8) & 0xff);
+        view.setUint8(offset + 2, (s >> 16) & 0xff);
+        offset += 3;
+      }
     }
   }
 

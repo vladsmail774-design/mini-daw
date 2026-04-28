@@ -26,6 +26,7 @@ export function useAudioEngine() {
     } else {
       for (const t of project.tracks) engine.ensureTrackChain(t);
       engine.setMasterVolumeDb(project.masterVolumeDb);
+      engine.ensureMasterChain(project.masterEffects ?? []);
     }
   }, [project]);
 

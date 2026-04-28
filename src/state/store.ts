@@ -23,6 +23,7 @@ const initialProject: ProjectState = {
   assets: {},
   masterVolumeDb: 0,
   loop: { enabled: false, start: 0, end: 8 },
+  masterEffects: [],
   lengthSec: 30,
   pxPerSec: 80,
 };
@@ -43,8 +44,12 @@ function makeTrack(name: string, color: string): Track {
 export interface UIState {
   selectedClipId: string | null;
   selectedTrackId: string | null;
-  /** Selection type for the inspector: clip params or track effects. */
-  inspectorMode: "clip" | "track";
+  /** Selection type for the inspector. */
+  inspectorMode: "clip" | "track" | "master";
+  /** A/B compare: when set, holds the "B" snapshot. */
+  abSnapshot: ProjectState | null;
+  /** When true, project is showing the B snapshot (compare mode). */
+  abShowing: "A" | "B";
 }
 
 interface HistoryEntry {
@@ -80,9 +85,20 @@ interface StoreState {
   updateEffect: (trackId: string, effectId: string, patch: Partial<Effect>) => void;
   removeEffect: (trackId: string, effectId: string) => void;
   reorderEffect: (trackId: string, fromIdx: number, toIdx: number) => void;
+  addMasterEffect: (type: EffectType) => void;
+  updateMasterEffect: (effectId: string, patch: Partial<Effect>) => void;
+  removeMasterEffect: (effectId: string) => void;
+  reorderMasterEffect: (fromIdx: number, toIdx: number) => void;
   setLoop: (patch: Partial<ProjectState["loop"]>) => void;
   setZoom: (pxPerSec: number) => void;
   setMasterVolumeDb: (db: number) => void;
+  /** Capture current project as the B snapshot for A/B comparison. */
+  abCapture: () => void;
+  /** Toggle between live (A) and snapshot (B). */
+  abToggle: () => void;
+  abClear: () => void;
+  /** Replace the entire project (used by templates/presets). */
+  loadProject: (next: ProjectState) => void;
 }
 
 const MAX_HISTORY = 50;
@@ -93,6 +109,8 @@ export const useStore = create<StoreState>((set, get) => ({
     selectedClipId: null,
     selectedTrackId: initialProject.tracks[0]?.id ?? null,
     inspectorMode: "track",
+    abSnapshot: null,
+    abShowing: "A",
   },
   past: [],
   future: [],
@@ -241,9 +259,55 @@ export const useStore = create<StoreState>((set, get) => ({
         return { ...t, effects: arr };
       }),
     })),
+  addMasterEffect: (type) =>
+    get().commit((p) => ({
+      ...p,
+      masterEffects: [...(p.masterEffects ?? []), defaultEffect(type)],
+    })),
+  updateMasterEffect: (effectId, patch) =>
+    get().commit((p) => ({
+      ...p,
+      masterEffects: (p.masterEffects ?? []).map((e) =>
+        e.id === effectId ? ({ ...e, ...patch } as Effect) : e,
+      ),
+    })),
+  removeMasterEffect: (effectId) =>
+    get().commit((p) => ({
+      ...p,
+      masterEffects: (p.masterEffects ?? []).filter((e) => e.id !== effectId),
+    })),
+  reorderMasterEffect: (fromIdx, toIdx) =>
+    get().commit((p) => {
+      const arr = (p.masterEffects ?? []).slice();
+      const [item] = arr.splice(fromIdx, 1);
+      if (!item) return p;
+      arr.splice(toIdx, 0, item);
+      return { ...p, masterEffects: arr };
+    }),
   setLoop: (patch) =>
     get().commit((p) => ({ ...p, loop: { ...p.loop, ...patch } })),
   setZoom: (pxPerSec) => get().mutate((p) => ({ ...p, pxPerSec })),
   setMasterVolumeDb: (db) =>
     get().commit((p) => ({ ...p, masterVolumeDb: db })),
+  abCapture: () => {
+    const project = get().project;
+    set({ ui: { ...get().ui, abSnapshot: project, abShowing: "A" } });
+  },
+  abToggle: () => {
+    const { ui, project } = get();
+    if (!ui.abSnapshot) return;
+    const swap = ui.abShowing === "A" ? "B" : "A";
+    set({
+      project: ui.abSnapshot,
+      ui: { ...ui, abSnapshot: project, abShowing: swap },
+    });
+  },
+  abClear: () => {
+    set({ ui: { ...get().ui, abSnapshot: null, abShowing: "A" } });
+  },
+  loadProject: (next) =>
+    get().commit(() => ({
+      ...next,
+      masterEffects: next.masterEffects ?? [],
+    })),
 }));

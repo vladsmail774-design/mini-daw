@@ -3,6 +3,11 @@
 export type EffectType =
   | "gain"
   | "eq3"
+  | "eq10"
+  | "compressor"
+  | "limiter"
+  | "saturation"
+  | "widener"
   | "reverb"
   | "delay"
   | "speed"
@@ -30,6 +35,45 @@ export interface Eq3Effect extends EffectBase {
   highFreqHz: number;
 }
 
+/** A single band in the 10-band graphic EQ. */
+export interface Eq10Band {
+  freqHz: number;
+  gainDb: number; // -18..+18
+  q: number; // 0.3..6
+}
+
+export interface Eq10Effect extends EffectBase {
+  type: "eq10";
+  bands: Eq10Band[]; // exactly 10 bands; index 0 = lowshelf, 9 = highshelf, 1..8 = peaking
+}
+
+export interface CompressorEffect extends EffectBase {
+  type: "compressor";
+  thresholdDb: number; // -60..0
+  ratio: number; // 1..20
+  attackSec: number; // 0..1
+  releaseSec: number; // 0..1
+  kneeDb: number; // 0..40
+  makeupDb: number; // 0..18
+}
+
+export interface LimiterEffect extends EffectBase {
+  type: "limiter";
+  ceilingDb: number; // -3..0
+  releaseSec: number; // 0..0.5
+}
+
+export interface SaturationEffect extends EffectBase {
+  type: "saturation";
+  driveDb: number; // 0..30
+  mode: "tanh" | "soft" | "hard";
+}
+
+export interface WidenerEffect extends EffectBase {
+  type: "widener";
+  width: number; // 0..2 (1 = unchanged, 0 = mono, 2 = exaggerated)
+}
+
 export interface ReverbEffect extends EffectBase {
   type: "reverb";
   decaySec: number; // 0.1..6
@@ -55,6 +99,11 @@ export interface PitchEffect extends EffectBase {
 export type Effect =
   | GainEffect
   | Eq3Effect
+  | Eq10Effect
+  | CompressorEffect
+  | LimiterEffect
+  | SaturationEffect
+  | WidenerEffect
   | ReverbEffect
   | DelayEffect
   | SpeedEffect
@@ -110,6 +159,8 @@ export interface ProjectState {
   assets: Record<string, AudioAsset>;
   masterVolumeDb: number;
   loop: LoopRegion;
+  /** Effect chain on the master bus (applied to the sum of all tracks). */
+  masterEffects: Effect[];
   /** Timeline end in seconds (auto-extends as clips are added). */
   lengthSec: number;
   /** Pixels per second (zoom). */
