@@ -1,11 +1,5 @@
 import type { Effect } from "../types";
 
-/**
- * A live effect instance attached to a graph. Each effect owns its
- * input/output nodes and a dry/wet crossfade, so a chain is simply:
- *
- *   prev.output -> next.input -> next.output -> ...
- */
 export interface EffectInstance {
   id: string;
   input: AudioNode;
@@ -16,8 +10,11 @@ export interface EffectInstance {
 
 type AC = BaseAudioContext;
 
-function makeWetDry(ctx: AC, processorInput: AudioNode, processorOutput: AudioNode = processorInput) {
-  // input -> split -> [dry gain, wet chain -> wet gain] -> sum (output)
+function makeWetDry(
+  ctx: AC,
+  processorInput: AudioNode,
+  processorOutput: AudioNode = processorInput,
+) {
   const input = ctx.createGain();
   const output = ctx.createGain();
   const dry = ctx.createGain();
@@ -40,22 +37,27 @@ function setWet(ctx: AC, dry: GainNode, wet: GainNode, w: number, bypass: boolea
   wet.gain.setTargetAtTime(clamped, now, 0.02);
 }
 
-export function createEffectInstance(
-  ctx: AC,
-  eff: Effect,
-): EffectInstance {
+export function createEffectInstance(ctx: AC, eff: Effect): EffectInstance {
   switch (eff.type) {
     case "gain":
       return createGain(ctx, eff);
     case "eq3":
       return createEq3(ctx, eff);
+    case "eq10":
+      return createEq10(ctx, eff);
+    case "compressor":
+      return createCompressor(ctx, eff);
+    case "limiter":
+      return createLimiter(ctx, eff);
+    case "saturation":
+      return createSaturation(ctx, eff);
+    case "widener":
+      return createWidener(ctx, eff);
     case "reverb":
       return createReverb(ctx, eff);
     case "delay":
       return createDelay(ctx, eff);
     case "speed":
-      // Speed/pitch are handled on the source (playbackRate/detune) rather
-      // than in the chain. Provide a pass-through so chain plumbing works.
       return createPassthrough(ctx, eff);
     case "pitch":
       return createPassthrough(ctx, eff);
@@ -140,9 +142,226 @@ function createEq3(ctx: AC, eff: Effect): EffectInstance {
   return inst;
 }
 
+function createEq10(ctx: AC, eff: Effect): EffectInstance {
+  const filters: BiquadFilterNode[] = [];
+  for (let i = 0; i < 10; i++) {
+    const f = ctx.createBiquadFilter();
+    if (i === 0) f.type = "lowshelf";
+    else if (i === 9) f.type = "highshelf";
+    else f.type = "peaking";
+    filters.push(f);
+  }
+  for (let i = 0; i < 9; i++) filters[i].connect(filters[i + 1]);
+
+  const { input, output, dry, wet } = makeWetDry(ctx, filters[0], filters[9]);
+
+  const inst: EffectInstance = {
+    id: eff.id,
+    input,
+    output,
+    update(next) {
+      if (next.type !== "eq10") return;
+      const now = ctx.currentTime;
+      for (let i = 0; i < 10 && i < next.bands.length; i++) {
+        const band = next.bands[i];
+        filters[i].frequency.setTargetAtTime(band.freqHz, now, 0.02);
+        filters[i].gain.setTargetAtTime(band.gainDb, now, 0.02);
+        if (filters[i].type === "peaking") {
+          filters[i].Q.setTargetAtTime(Math.max(0.1, band.q), now, 0.02);
+        }
+      }
+      setWet(ctx, dry, wet, next.wet, next.bypass);
+    },
+    dispose() {
+      input.disconnect();
+      output.disconnect();
+      for (const f of filters) f.disconnect();
+    },
+  };
+  inst.update(eff);
+  return inst;
+}
+
+function createCompressor(ctx: AC, eff: Effect): EffectInstance {
+  const comp = ctx.createDynamicsCompressor();
+  const makeup = ctx.createGain();
+  comp.connect(makeup);
+  const { input, output, dry, wet } = makeWetDry(ctx, comp, makeup);
+
+  const inst: EffectInstance = {
+    id: eff.id,
+    input,
+    output,
+    update(next) {
+      if (next.type !== "compressor") return;
+      const now = ctx.currentTime;
+      comp.threshold.setTargetAtTime(next.thresholdDb, now, 0.02);
+      comp.ratio.setTargetAtTime(next.ratio, now, 0.02);
+      comp.attack.setTargetAtTime(next.attackSec, now, 0.02);
+      comp.release.setTargetAtTime(next.releaseSec, now, 0.02);
+      comp.knee.setTargetAtTime(next.kneeDb, now, 0.02);
+      makeup.gain.setTargetAtTime(dbToLin(next.makeupDb), now, 0.02);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
+    },
+    dispose() {
+      input.disconnect();
+      output.disconnect();
+      comp.disconnect();
+      makeup.disconnect();
+    },
+  };
+  inst.update(eff);
+  return inst;
+}
+
+function createLimiter(ctx: AC, eff: Effect): EffectInstance {
+  const comp = ctx.createDynamicsCompressor();
+  comp.ratio.value = 20;
+  comp.knee.value = 0;
+  comp.attack.value = 0.001;
+  const ceiling = ctx.createGain();
+  comp.connect(ceiling);
+  const { input, output, dry, wet } = makeWetDry(ctx, comp, ceiling);
+
+  const inst: EffectInstance = {
+    id: eff.id,
+    input,
+    output,
+    update(next) {
+      if (next.type !== "limiter") return;
+      const now = ctx.currentTime;
+      comp.threshold.setTargetAtTime(next.ceilingDb, now, 0.02);
+      comp.release.setTargetAtTime(next.releaseSec, now, 0.02);
+      ceiling.gain.setTargetAtTime(dbToLin(next.ceilingDb), now, 0.02);
+      setWet(ctx, dry, wet, next.wet, next.bypass);
+    },
+    dispose() {
+      input.disconnect();
+      output.disconnect();
+      comp.disconnect();
+      ceiling.disconnect();
+    },
+  };
+  inst.update(eff);
+  return inst;
+}
+
+function makeSaturationCurve(drive: number, mode: "tanh" | "soft" | "hard"): Float32Array {
+  const n = 8192;
+  const curve = new Float32Array(n);
+  const k = Math.pow(10, drive / 20);
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1;
+    const s = x * k;
+    if (mode === "tanh") {
+      curve[i] = Math.tanh(s);
+    } else if (mode === "soft") {
+      curve[i] = s / (1 + Math.abs(s));
+    } else {
+      curve[i] = Math.max(-1, Math.min(1, s));
+    }
+  }
+  return curve;
+}
+
+function createSaturation(ctx: AC, eff: Effect): EffectInstance {
+  const shaper = ctx.createWaveShaper();
+  shaper.oversample = "4x";
+  const { input, output, dry, wet } = makeWetDry(ctx, shaper);
+
+  const inst: EffectInstance = {
+    id: eff.id,
+    input,
+    output,
+    update(next) {
+      if (next.type !== "saturation") return;
+      shaper.curve = makeSaturationCurve(next.driveDb, next.mode) as Float32Array<ArrayBuffer>;
+      setWet(ctx, dry, wet, next.wet, next.bypass);
+    },
+    dispose() {
+      input.disconnect();
+      output.disconnect();
+      shaper.disconnect();
+    },
+  };
+  inst.update(eff);
+  return inst;
+}
+
+function createWidener(ctx: AC, eff: Effect): EffectInstance {
+  const input = ctx.createGain();
+  const output = ctx.createGain();
+  const dryG = ctx.createGain();
+  const wetG = ctx.createGain();
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+  const midGain = ctx.createGain();
+  const sideGain = ctx.createGain();
+  const leftMid = ctx.createGain();
+  const leftSide = ctx.createGain();
+  const rightMid = ctx.createGain();
+  const rightSide = ctx.createGain();
+  const outL = ctx.createGain();
+  const outR = ctx.createGain();
+  const sideInverted = ctx.createGain();
+
+  input.connect(splitter);
+  splitter.connect(leftMid, 0);
+  splitter.connect(leftSide, 0);
+  splitter.connect(rightMid, 1);
+  splitter.connect(rightSide, 1);
+  leftMid.connect(midGain);
+  rightMid.connect(midGain);
+  leftSide.connect(sideGain);
+  rightSide.gain.value = -1;
+  rightSide.connect(sideGain);
+  midGain.connect(outL);
+  midGain.connect(outR);
+  sideGain.connect(outL);
+  sideGain.connect(sideInverted);
+  sideInverted.gain.value = -1;
+  sideInverted.connect(outR);
+  outL.connect(merger, 0, 0);
+  outR.connect(merger, 0, 1);
+  input.connect(dryG).connect(output);
+  merger.connect(wetG).connect(output);
+
+  const inst: EffectInstance = {
+    id: eff.id,
+    input,
+    output,
+    update(next) {
+      if (next.type !== "widener") return;
+      const now = ctx.currentTime;
+      const w = Math.max(0, Math.min(2, next.width));
+      midGain.gain.setTargetAtTime(0.5, now, 0.02);
+      sideGain.gain.setTargetAtTime(0.5 * w, now, 0.02);
+      setWet(ctx, dryG, wetG, next.wet, next.bypass);
+    },
+    dispose() {
+      input.disconnect();
+      output.disconnect();
+      splitter.disconnect();
+      merger.disconnect();
+      midGain.disconnect();
+      sideGain.disconnect();
+      leftMid.disconnect();
+      leftSide.disconnect();
+      rightMid.disconnect();
+      rightSide.disconnect();
+      outL.disconnect();
+      outR.disconnect();
+      sideInverted.disconnect();
+      dryG.disconnect();
+      wetG.disconnect();
+    },
+  };
+  inst.update(eff);
+  return inst;
+}
+
 function createReverb(ctx: AC, eff: Effect): EffectInstance {
   const conv = ctx.createConvolver();
-  // Build an initial IR.
   conv.buffer = makeImpulseResponse(
     ctx,
     eff.type === "reverb" ? eff.decaySec : 2,
@@ -206,10 +425,6 @@ function dbToLin(db: number): number {
   return Math.pow(10, db / 20);
 }
 
-/**
- * Synthesizes a simple decaying-noise impulse response for the
- * ConvolverNode. Quality is rough but good enough for a prototype.
- */
 export function makeImpulseResponse(
   ctx: AC,
   decaySec: number,
@@ -226,8 +441,7 @@ export function makeImpulseResponse(
         ch[i] = 0;
       } else {
         const t = (i - preDelaySamples) / sr;
-        // Use exponential decay for more natural reverb
-        const env = Math.exp(-t * 6.9 / decaySec); 
+        const env = Math.exp((-t * 6.9) / decaySec);
         ch[i] = (Math.random() * 2 - 1) * env;
       }
     }

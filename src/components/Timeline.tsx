@@ -221,12 +221,12 @@ function Ruler({
     c.height = RULER_HEIGHT * dpr;
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, bodyWidth, RULER_HEIGHT);
-    
+
     const step = chooseStep(pxPerSec);
     ctx.fillStyle = "#6b7280";
     ctx.font = "10px ui-monospace, monospace";
     ctx.textBaseline = "middle";
-    
+
     for (let t = 0; t * pxPerSec < bodyWidth; t += step) {
       const x = t * pxPerSec;
       ctx.fillStyle = "rgba(107, 114, 128, 0.2)";

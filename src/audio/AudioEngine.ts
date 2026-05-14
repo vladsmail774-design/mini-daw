@@ -1,25 +1,19 @@
-import type { ProjectState, Track } from "../types";
+import type { Effect, ProjectState, Track } from "../types";
 import { createEffectInstance, type EffectInstance } from "./effects";
 import { dbToGain } from "../utils/audio";
+import { createAnalyzer, type AnalyzerWrapper } from "./analyzer";
 
-/**
- * AudioEngine owns the single AudioContext and is responsible for
- * building per-track effect chains, scheduling clip playback with
- * sample-accurate start times, and exposing a realtime transport.
- *
- * The engine is intentionally separate from UI state: it consumes a
- * snapshot of the project when play() is called and rebuilds internal
- * graph nodes for each playback session.
- */
 export class AudioEngine {
   readonly ctx: AudioContext;
   readonly master: GainNode;
+  readonly masterPost: GainNode;
+  readonly masterAnalyser: AnalyzerWrapper;
   readonly analyser: AnalyserNode;
 
-  /** Decoded audio buffers keyed by asset id. */
   readonly buffers = new Map<string, AudioBuffer>();
 
-  /** Per-track persistent chains while the context lives. Rebuilt on play. */
+  private masterEffects: EffectInstance[] = [];
+
   private trackChains = new Map<
     string,
     {
@@ -28,12 +22,13 @@ export class AudioEngine {
       volume: GainNode;
       pan: StereoPannerNode;
       effects: EffectInstance[];
+      analyser: AnalyzerWrapper;
     }
   >();
 
   private sources: AudioBufferSourceNode[] = [];
-  private transportStartTime = 0; // AudioContext time at which "now" == positionAtStart
-  private positionAtStart = 0; // Timeline position (sec) when playback started
+  private transportStartTime = 0;
+  private positionAtStart = 0;
   private _isPlaying = false;
   private _position = 0;
   private rafId: number | null = null;
@@ -43,14 +38,14 @@ export class AudioEngine {
   private loopTimer: number | null = null;
 
   constructor(sampleRate?: number) {
-    // Modern browsers don't honor explicit sampleRate in all cases; we
-    // still try and fall back to the platform default.
     this.ctx = new AudioContext(sampleRate ? { sampleRate } : undefined);
     this.master = this.ctx.createGain();
-    this.analyser = this.ctx.createAnalyser();
-    this.analyser.fftSize = 1024;
-    this.master.connect(this.analyser);
-    this.analyser.connect(this.ctx.destination);
+    this.masterPost = this.ctx.createGain();
+    this.masterAnalyser = createAnalyzer(this.ctx, 2048);
+    this.analyser = this.masterAnalyser.node;
+    this.master.connect(this.masterPost);
+    this.masterPost.connect(this.masterAnalyser.node);
+    this.masterAnalyser.node.connect(this.ctx.destination);
   }
 
   get isPlaying() {
@@ -78,25 +73,25 @@ export class AudioEngine {
   }
 
   setMasterVolumeDb(db: number) {
-    this.master.gain.value = dbToGain(db);
+    this.master.gain.setTargetAtTime(dbToGain(db), this.ctx.currentTime, 0.02);
   }
 
-  /**
-   * Builds or updates a track's signal chain:
-   *   sources -> [effects chain] -> volume -> pan -> master
-   */
-  ensureTrackChain(track: Track, snapshot?: ProjectState): {
-    input: GainNode;
-  } {
+  getTrackAnalyser(trackId: string): AnalyzerWrapper | null {
+    return this.trackChains.get(trackId)?.analyser ?? null;
+  }
+
+  ensureTrackChain(track: Track, snapshot?: ProjectState): { input: GainNode } {
     let chain = this.trackChains.get(track.id);
     if (!chain) {
       const input = this.ctx.createGain();
       const volume = this.ctx.createGain();
       const pan = this.ctx.createStereoPanner();
       const output = this.ctx.createGain();
+      const analyser = createAnalyzer(this.ctx, 1024);
       input.connect(volume).connect(pan).connect(output);
-      output.connect(this.master);
-      chain = { input, output, volume, pan, effects: [] };
+      output.connect(analyser.node);
+      analyser.node.connect(this.master);
+      chain = { input, output, volume, pan, effects: [], analyser };
       this.trackChains.set(track.id, chain);
     }
     this.rebuildEffectChain(track, chain);
@@ -111,7 +106,6 @@ export class AudioEngine {
   ) {
     const effectiveMute = track.mute || (this.hasSolo(snapshot) && !track.solo);
     const targetGain = effectiveMute ? 0 : dbToGain(track.volumeDb);
-    // Use a small ramp to avoid clicks
     chain.volume.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.02);
     chain.pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, track.pan)), this.ctx.currentTime, 0.02);
   }
@@ -126,31 +120,25 @@ export class AudioEngine {
     track: Track,
     chain: NonNullable<ReturnType<AudioEngine["trackChains"]["get"]>>,
   ) {
-    // Fast path: update in place if effect ids & order match.
     const currentIds = chain.effects.map((e) => e.id).join(",");
     const nextIds = track.effects.map((e) => e.id).join(",");
     if (currentIds === nextIds) {
-      // Same order and same set — just update params.
       for (let i = 0; i < track.effects.length; i++) {
         chain.effects[i].update(track.effects[i]);
       }
       return;
     }
 
-    // Otherwise rebuild.
     for (const e of chain.effects) e.dispose();
     chain.effects = [];
 
-    // Disconnect input from volume; we'll reconnect through the new chain.
     try {
       chain.input.disconnect();
     } catch {
       /* ignore */
     }
 
-    const instances: EffectInstance[] = track.effects.map((e) =>
-      createEffectInstance(this.ctx, e),
-    );
+    const instances = track.effects.map((e) => createEffectInstance(this.ctx, e));
 
     let prev: AudioNode = chain.input;
     for (const inst of instances) {
@@ -162,16 +150,38 @@ export class AudioEngine {
     chain.effects = instances;
   }
 
-  /**
-   * Returns combined speed (playbackRate) and pitch (detune cents) from
-   * a track's non-bypassed effects. Speed and pitch are applied directly
-   * to each AudioBufferSourceNode, since a shared playbackRate gives us
-   * sample-accurate behavior without grain-based DSP.
-   */
-  private sourceModifiersForTrack(track: Track): {
-    rate: number;
-    detune: number;
-  } {
+  ensureMasterChain(masterEffects: Effect[]) {
+    const currentIds = this.masterEffects.map((e) => e.id).join(",");
+    const nextIds = masterEffects.map((e) => e.id).join(",");
+    if (currentIds === nextIds) {
+      for (let i = 0; i < masterEffects.length; i++) {
+        this.masterEffects[i].update(masterEffects[i]);
+      }
+      return;
+    }
+
+    for (const e of this.masterEffects) e.dispose();
+    this.masterEffects = [];
+
+    try {
+      this.master.disconnect();
+    } catch {
+      /* ignore */
+    }
+
+    const instances = masterEffects.map((e) => createEffectInstance(this.ctx, e));
+
+    let prev: AudioNode = this.master;
+    for (const inst of instances) {
+      prev.connect(inst.input);
+      prev = inst.output;
+    }
+    prev.connect(this.masterPost);
+
+    this.masterEffects = instances;
+  }
+
+  private sourceModifiersForTrack(track: Track): { rate: number; detune: number } {
     let rate = 1;
     let detune = 0;
     for (const e of track.effects) {
@@ -182,7 +192,6 @@ export class AudioEngine {
     return { rate, detune };
   }
 
-  /** Stop all sources and clear scheduling (keeps chains allocated). */
   private stopAllSources() {
     for (const s of this.sources) {
       try {
@@ -203,26 +212,20 @@ export class AudioEngine {
     }
   }
 
-  /**
-   * Schedule all clips from the given snapshot starting at `startPos`
-   * timeline seconds. All sources are started with a single shared
-   * audio-context anchor for tight synchronization.
-   */
   play(snapshot: ProjectState, startPos: number) {
     this.lastSnapshot = snapshot;
     this.stopAllSources();
 
     this.setMasterVolumeDb(snapshot.masterVolumeDb);
+    this.ensureMasterChain(snapshot.masterEffects ?? []);
 
     const now = this.ctx.currentTime;
-    const anchor = now + 0.08; // small lookahead to avoid missing starts
+    const anchor = now + 0.08;
     this.transportStartTime = anchor;
     this.positionAtStart = startPos;
 
-    // Build / update chains for every track before scheduling sources.
     for (const t of snapshot.tracks) this.ensureTrackChain(t, snapshot);
 
-    // Schedule each clip that overlaps the play window.
     const loopEnabled = snapshot.loop.enabled && snapshot.loop.end > snapshot.loop.start;
     const windowEnd = loopEnabled ? snapshot.loop.end : snapshot.lengthSec + 5;
 
@@ -235,14 +238,12 @@ export class AudioEngine {
       if (!buffer) continue;
 
       const mods = this.sourceModifiersForTrack(track);
-
-      // Compute overlap [segStart, segEnd] between clip and [startPos, windowEnd].
       const clipEnd = clip.start + clip.duration;
       const segStart = Math.max(clip.start, startPos);
       const segEnd = Math.min(clipEnd, windowEnd);
       if (segEnd <= segStart) continue;
 
-      const whenOffsetSec = (segStart - startPos) / mods.rate;
+      const whenOffsetSec = segStart - startPos;
       const offsetIntoSource = clip.offset + (segStart - clip.start);
       const segDuration = segEnd - segStart;
       const playDuration = segDuration / mods.rate;
@@ -261,11 +262,11 @@ export class AudioEngine {
     }
 
     this._isPlaying = true;
+    this.masterAnalyser.resetClipping();
     if (this.onStateChange) this.onStateChange(true);
 
     if (loopEnabled) {
-      const dur = (snapshot.loop.end - startPos);
-      // We use a slightly shorter timeout and check position in ticker for better accuracy
+      const dur = snapshot.loop.end - startPos;
       this.loopTimer = window.setTimeout(
         () => {
           if (!this._isPlaying) return;
@@ -319,15 +320,16 @@ export class AudioEngine {
     }
   }
 
-  /**
-   * React to state changes while playing without restarting transport:
-   * updates volumes/pans/effect params. New clips won't play until the
-   * next transport start — that's an accepted prototype limitation.
-   */
   syncWhilePlaying(snapshot: ProjectState) {
     this.lastSnapshot = snapshot;
     this.setMasterVolumeDb(snapshot.masterVolumeDb);
-    for (const t of snapshot.tracks) this.ensureTrackChain(t);
+    this.ensureMasterChain(snapshot.masterEffects ?? []);
+    for (const t of snapshot.tracks) {
+      const chain = this.trackChains.get(t.id);
+      if (!chain) continue;
+      this.rebuildEffectChain(t, chain);
+      this.applyTrackParams(t, chain, snapshot);
+    }
   }
 
   dispose() {
@@ -336,16 +338,20 @@ export class AudioEngine {
       for (const e of chain.effects) e.dispose();
       chain.input.disconnect();
       chain.output.disconnect();
+      chain.analyser.node.disconnect();
     }
     this.trackChains.clear();
+    for (const e of this.masterEffects) e.dispose();
+    this.masterEffects = [];
     this.master.disconnect();
-    this.analyser.disconnect();
+    this.masterPost.disconnect();
+    this.masterAnalyser.node.disconnect();
     void this.ctx.close();
   }
 }
 
-let singleton: AudioEngine | null = null;
+let engineSingleton: AudioEngine | null = null;
 export function getAudioEngine(): AudioEngine {
-  if (!singleton) singleton = new AudioEngine();
-  return singleton;
+  if (!engineSingleton) engineSingleton = new AudioEngine();
+  return engineSingleton;
 }

@@ -3,9 +3,9 @@ import { useStore } from "../state/store";
 import { getAudioEngine } from "../audio/AudioEngine";
 import { decodeAndAnalyze } from "../audio/waveform";
 import { uid } from "../utils/id";
-import type { AudioAsset } from "../types";
+import type { AudioAsset, EffectType } from "../types";
 import { EFFECT_LABELS } from "../state/effects";
-import type { EffectType } from "../types";
+import { applyQuickChain, QUICK_CHAINS } from "../state/quickChains";
 
 export function Sidebar() {
   const project = useStore((s) => s.project);
@@ -13,6 +13,7 @@ export function Sidebar() {
   const addClip = useStore((s) => s.addClip);
   const addTrack = useStore((s) => s.addTrack);
   const addEffect = useStore((s) => s.addEffect);
+  const updateTrack = useStore((s) => s.updateTrack);
   const ui = useStore((s) => s.ui);
   const setSelected = useStore((s) => s.setSelected);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +62,19 @@ export function Sidebar() {
   };
 
   const selectedTrack = project.tracks.find((t) => t.id === ui.selectedTrackId);
-  const effectTypes: EffectType[] = ["gain", "eq3", "reverb", "delay", "speed", "pitch"];
+  const effectTypes: EffectType[] = [
+    "eq10",
+    "compressor",
+    "limiter",
+    "saturation",
+    "widener",
+    "reverb",
+    "delay",
+    "eq3",
+    "gain",
+    "speed",
+    "pitch",
+  ];
 
   return (
     <aside className="w-64 bg-bg-1 border-r border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
@@ -77,7 +90,9 @@ export function Sidebar() {
           }
         }}
       >
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">Files</div>
+        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+          Files
+        </div>
         <button
           className="w-full py-2 rounded bg-bg-2 hover:bg-bg-3 text-xs transition-colors border border-bg-3"
           onClick={() => fileInputRef.current?.click()}
@@ -92,12 +107,16 @@ export function Sidebar() {
           className="hidden"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
-        <div className="text-[9px] text-gray-600 mt-2 text-center italic">Or drag files here</div>
+        <div className="text-[9px] text-gray-600 mt-2 text-center italic">
+          Or drag files here
+        </div>
       </div>
 
       <div className="overflow-y-auto flex-1 no-scrollbar">
         <div className="p-3">
-          <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">Assets</div>
+          <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+            Assets
+          </div>
           <div className="flex flex-col gap-1">
             {Object.values(project.assets).length === 0 && (
               <div className="text-[10px] text-gray-600 italic p-2 bg-bg-0/50 rounded border border-dashed border-bg-3">
@@ -127,7 +146,9 @@ export function Sidebar() {
 
         <div className="p-3 border-t border-bg-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold">Tracks</div>
+            <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold">
+              Tracks
+            </div>
             <button
               className="text-[10px] w-5 h-5 flex items-center justify-center rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors"
               onClick={() => addTrack()}
@@ -138,28 +159,66 @@ export function Sidebar() {
           </div>
           <div className="flex flex-col gap-1">
             {project.tracks.map((t) => (
-              <button
+              <div
                 key={t.id}
-                onClick={() =>
-                  setSelected({ selectedTrackId: t.id, inspectorMode: "track", selectedClipId: null })
-                }
-                className={`text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors border ${
+                className={`text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors border cursor-pointer ${
                   ui.selectedTrackId === t.id && ui.inspectorMode === "track"
                     ? "bg-bg-3 border-accent/30"
                     : "bg-bg-2 border-transparent hover:bg-bg-3"
                 }`}
+                onClick={() =>
+                  setSelected({ selectedTrackId: t.id, inspectorMode: "track", selectedClipId: null })
+                }
               >
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: t.color }}
                 />
-                <span className="text-xs truncate">{t.name}</span>
-              </button>
+                <span className="text-xs truncate flex-1">{t.name}</span>
+                <button
+                  className={`text-[10px] px-1 rounded ${
+                    t.mute ? "bg-red-500/70 text-black" : "bg-bg-3 text-gray-400"
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateTrack(t.id, { mute: !t.mute });
+                  }}
+                  title="Mute"
+                >
+                  M
+                </button>
+                <button
+                  className={`text-[10px] px-1 rounded ${
+                    t.solo ? "bg-yellow-400 text-black" : "bg-bg-3 text-gray-400"
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateTrack(t.id, { solo: !t.solo });
+                  }}
+                  title="Solo"
+                >
+                  S
+                </button>
+              </div>
             ))}
+            <button
+              className={`mt-1 px-2 py-1.5 rounded flex items-center gap-2 text-left transition-colors border ${
+                ui.inspectorMode === "master"
+                  ? "bg-bg-3 border-accent/30"
+                  : "bg-bg-2 border-transparent hover:bg-bg-3"
+              }`}
+              onClick={() =>
+                setSelected({ inspectorMode: "master", selectedClipId: null })
+              }
+              title="Master bus inspector"
+            >
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <span className="text-xs truncate">Master bus</span>
+            </button>
           </div>
         </div>
 
-        {selectedTrack && (
+        {selectedTrack && ui.inspectorMode === "track" && (
           <div className="p-3 border-t border-bg-3">
             <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
               Add Effect
@@ -172,6 +231,27 @@ export function Sidebar() {
                   onClick={() => addEffect(selectedTrack.id, t)}
                 >
                   + {EFFECT_LABELS[t]}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedTrack && ui.inspectorMode === "track" && (
+          <div className="p-3 border-t border-bg-3">
+            <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+              Quick chain
+            </div>
+            <div className="flex flex-col gap-1">
+              {QUICK_CHAINS.map((qc) => (
+                <button
+                  key={qc.name}
+                  className="text-xs px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 text-left"
+                  onClick={() => applyQuickChain(selectedTrack.id, qc)}
+                  title={qc.description}
+                >
+                  {qc.name}
+                  <span className="block text-[10px] text-gray-500">{qc.description}</span>
                 </button>
               ))}
             </div>
