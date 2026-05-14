@@ -11,20 +11,20 @@ export default function App() {
   const { isPlaying, position, play, pause, stop, seek } = useAudioEngine();
   const project = useStore((s) => s.project);
 
-  // Autosave to localStorage on a 2s debounce.
   useEffect(() => {
     const t = window.setTimeout(() => autosave(project), 2000);
     return () => window.clearTimeout(t);
   }, [project]);
 
   return (
-    <div className="h-full w-full flex flex-col bg-bg-0 text-gray-200">
-      <div className="h-10 bg-bg-1 border-b border-bg-3 flex items-center px-3 gap-3">
-        <div className="font-mono text-sm text-accent">mini-daw</div>
-        <div className="text-xs text-gray-500">
-          v1.1 · React · Web Audio · Zustand · Tailwind
+    <div className="h-screen w-screen flex flex-col bg-bg-0 text-gray-200 overflow-hidden">
+      <div className="h-10 bg-bg-1 border-b border-bg-3 flex items-center px-3 gap-3 flex-shrink-0">
+        <div className="font-mono text-sm text-accent font-bold">mini-daw</div>
+        <div className="text-[10px] text-gray-500 uppercase tracking-widest">
+          v1.1 - React - Web Audio - Zustand - Tailwind
         </div>
       </div>
+
       <Transport
         isPlaying={isPlaying}
         position={position}
@@ -33,9 +33,12 @@ export default function App() {
         stop={stop}
         seek={seek}
       />
-      <div className="flex-1 flex min-h-0">
+
+      <div className="flex-1 flex min-h-0 overflow-hidden relative">
         <Sidebar />
-        <Timeline position={position} onSeek={seek} />
+        <main className="flex-1 min-w-0 relative overflow-hidden flex flex-col">
+          <Timeline position={position} onSeek={seek} />
+        </main>
         <Inspector />
       </div>
     </div>

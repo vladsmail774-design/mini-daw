@@ -14,7 +14,11 @@ export function useAudioEngine() {
   useEffect(() => {
     const engine = getAudioEngine();
     engine.setOnTick((p) => setPosition(p));
-    return () => engine.setOnTick(null);
+    engine.setOnStateChange((playing) => setIsPlaying(playing));
+    return () => {
+      engine.setOnTick(null);
+      engine.setOnStateChange(null);
+    };
   }, []);
 
   // Keep live chains in sync with state while playing — volume/pan/effects

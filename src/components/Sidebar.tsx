@@ -77,9 +77,9 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-bg-1 border-r border-bg-3 flex flex-col">
+    <aside className="w-64 bg-bg-1 border-r border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
       <div
-        className="p-3 border-b border-bg-3"
+        className="p-3 border-b border-bg-3 flex-shrink-0"
         onDragOver={(e) => {
           e.preventDefault();
         }}
@@ -90,12 +90,14 @@ export function Sidebar() {
           }
         }}
       >
-        <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">Files</div>
+        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+          Files
+        </div>
         <button
-          className="w-full py-1.5 rounded bg-bg-2 hover:bg-bg-3 text-sm"
+          className="w-full py-2 rounded bg-bg-2 hover:bg-bg-3 text-xs transition-colors border border-bg-3"
           onClick={() => fileInputRef.current?.click()}
         >
-          {loading ? "Loading…" : "Import audio…"}
+          {loading ? "Decoding..." : "Import Audio"}
         </button>
         <input
           ref={fileInputRef}
@@ -105,30 +107,36 @@ export function Sidebar() {
           className="hidden"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
-        <div className="text-[10px] text-gray-500 mt-1">Or drag files here</div>
+        <div className="text-[9px] text-gray-600 mt-2 text-center italic">
+          Or drag files here
+        </div>
       </div>
 
-      <div className="overflow-auto flex-1 no-scrollbar">
+      <div className="overflow-y-auto flex-1 no-scrollbar">
         <div className="p-3">
-          <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">Assets</div>
+          <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+            Assets
+          </div>
           <div className="flex flex-col gap-1">
             {Object.values(project.assets).length === 0 && (
-              <div className="text-xs text-gray-600">No files loaded</div>
+              <div className="text-[10px] text-gray-600 italic p-2 bg-bg-0/50 rounded border border-dashed border-bg-3">
+                No files loaded
+              </div>
             )}
             {Object.values(project.assets).map((a) => (
               <div
                 key={a.id}
-                className="bg-bg-2 hover:bg-bg-3 rounded px-2 py-1 flex items-center justify-between gap-2 cursor-pointer"
+                className="bg-bg-2 hover:bg-bg-3 rounded px-2 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors border border-transparent hover:border-bg-3"
                 draggable
                 onDragStart={(e) => {
                   e.dataTransfer.setData("application/x-mini-daw-asset", a.id);
                   e.dataTransfer.effectAllowed = "copy";
                 }}
                 onDoubleClick={() => addClipFromAsset(a)}
-                title="Double-click to add to selected track, or drag onto a track"
+                title="Double-click to add to selected track"
               >
-                <span className="text-sm truncate">{a.name}</span>
-                <span className="text-[10px] text-gray-500 tabular-nums">
+                <span className="text-xs truncate flex-1">{a.name}</span>
+                <span className="text-[9px] text-gray-500 tabular-nums">
                   {a.durationSec.toFixed(1)}s
                 </span>
               </div>
@@ -138,10 +146,13 @@ export function Sidebar() {
 
         <div className="p-3 border-t border-bg-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs uppercase text-gray-500 tracking-wider">Tracks</div>
+            <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold">
+              Tracks
+            </div>
             <button
-              className="text-xs px-2 py-0.5 rounded bg-bg-2 hover:bg-bg-3"
+              className="text-[10px] w-5 h-5 flex items-center justify-center rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors"
               onClick={() => addTrack()}
+              title="Add Track"
             >
               +
             </button>
@@ -150,17 +161,20 @@ export function Sidebar() {
             {project.tracks.map((t) => (
               <div
                 key={t.id}
-                className={`px-2 py-1 rounded flex items-center gap-2 cursor-pointer ${
+                className={`text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors border cursor-pointer ${
                   ui.selectedTrackId === t.id && ui.inspectorMode === "track"
-                    ? "bg-bg-3"
-                    : "bg-bg-2 hover:bg-bg-3"
+                    ? "bg-bg-3 border-accent/30"
+                    : "bg-bg-2 border-transparent hover:bg-bg-3"
                 }`}
                 onClick={() =>
                   setSelected({ selectedTrackId: t.id, inspectorMode: "track", selectedClipId: null })
                 }
               >
-                <span className="w-2 h-2 rounded-full" style={{ background: t.color }} />
-                <span className="text-sm truncate flex-1">{t.name}</span>
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: t.color }}
+                />
+                <span className="text-xs truncate flex-1">{t.name}</span>
                 <button
                   className={`text-[10px] px-1 rounded ${
                     t.mute ? "bg-red-500/70 text-black" : "bg-bg-3 text-gray-400"
@@ -188,8 +202,10 @@ export function Sidebar() {
               </div>
             ))}
             <button
-              className={`mt-1 px-2 py-1 rounded flex items-center gap-2 text-left ${
-                ui.inspectorMode === "master" ? "bg-bg-3" : "bg-bg-2 hover:bg-bg-3"
+              className={`mt-1 px-2 py-1.5 rounded flex items-center gap-2 text-left transition-colors border ${
+                ui.inspectorMode === "master"
+                  ? "bg-bg-3 border-accent/30"
+                  : "bg-bg-2 border-transparent hover:bg-bg-3"
               }`}
               onClick={() =>
                 setSelected({ inspectorMode: "master", selectedClipId: null })
@@ -197,21 +213,21 @@ export function Sidebar() {
               title="Master bus inspector"
             >
               <span className="w-2 h-2 rounded-full bg-accent" />
-              <span className="text-sm">Master bus</span>
+              <span className="text-xs truncate">Master bus</span>
             </button>
           </div>
         </div>
 
         {selectedTrack && ui.inspectorMode === "track" && (
           <div className="p-3 border-t border-bg-3">
-            <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">
-              Add effect → {selectedTrack.name}
+            <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
+              Add Effect
             </div>
             <div className="grid grid-cols-2 gap-1">
               {effectTypes.map((t) => (
                 <button
                   key={t}
-                  className="text-xs px-2 py-1 rounded bg-bg-2 hover:bg-bg-3"
+                  className="text-[10px] px-2 py-1.5 rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors text-left truncate"
                   onClick={() => addEffect(selectedTrack.id, t)}
                 >
                   + {EFFECT_LABELS[t]}
@@ -223,7 +239,7 @@ export function Sidebar() {
 
         {selectedTrack && ui.inspectorMode === "track" && (
           <div className="p-3 border-t border-bg-3">
-            <div className="text-xs uppercase text-gray-500 tracking-wider mb-2">
+            <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
               Quick chain
             </div>
             <div className="flex flex-col gap-1">
