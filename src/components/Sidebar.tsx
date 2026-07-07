@@ -1,10 +1,26 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useStore } from "../state/store";
 import { getAudioEngine } from "../audio/AudioEngine";
 import { decodeAndAnalyze } from "../audio/waveform";
 import { uid } from "../utils/id";
 import type { AudioAsset, EffectType } from "../types";
 import { EFFECT_LABELS } from "../state/effects";
+
+interface ToastMessage {
+  id: string;
+  type: "error" | "success" | "info";
+  message: string;
+}
+
+// Тип для воркера
+type WorkerMessage = 
+  | { type: 'DECODE_AUDIO'; payload: { fileData: ArrayBuffer; fileName: string } }
+  | { type: 'ANALYZE_WAVEFORM'; payload: { audioData: Float32Array; samplesPerPoint: number } };
+
+type WorkerResponse = 
+  | { type: 'DECODE_SUCCESS'; payload: { fileName: string; audioBuffer: any; peaks: number[] } }
+  | { type: 'DECODE_ERROR'; payload: { fileName: string; error: string } }
+  | { type: 'WAVEFORM_READY'; payload: { peaks: number[] } };
 
 export function Sidebar() {
   const project = useStore((s) => s.project);
@@ -16,33 +32,118 @@ export function Sidebar() {
   const setSelected = useStore((s) => s.setSelected);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const workerRef = useRef<Worker | null>(null);
 
-  const handleFiles = async (files: FileList | File[]) => {
+  // Инициализация Web Worker при монтировании компонента
+  useEffect(() => {
+    // Создаем воркер из файла audioWorker.ts
+    workerRef.current = new Worker(
+      new URL('../audio/audioWorker.ts', import.meta.url),
+      { type: 'module' }
+    );
+
+    // Обработка сообщений от воркера
+    workerRef.current.onmessage = (e: MessageEvent<WorkerResponse>) => {
+      const { type, payload } = e.data;
+      
+      if (type === 'DECODE_SUCCESS') {
+        const { fileName, audioBuffer, peaks } = payload;
+        
+        // Восстанавливаем AudioBuffer из сериализованных данных
+        const engine = getAudioEngine();
+        const ctx = engine.ctx;
+        const buffer = ctx.createBuffer(
+          audioBuffer.numberOfChannels,
+          audioBuffer.length,
+          audioBuffer.sampleRate
+        );
+        
+        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+          buffer.getChannelData(i).set(audioBuffer.channelData[i]);
+        }
+        
+        const id = uid("asset");
+        engine.registerBuffer(id, buffer);
+        
+        const asset: AudioAsset = {
+          id,
+          name: fileName,
+          durationSec: audioBuffer.duration,
+          sampleRate: audioBuffer.sampleRate,
+          numChannels: audioBuffer.numberOfChannels,
+          peaks: new Float32Array(peaks),
+          peaksPerSecond: peaks.length / audioBuffer.duration,
+        };
+        
+        addAsset(asset);
+        addToast("success", `Imported: ${fileName}`);
+        setLoading(false);
+      }
+      else if (type === 'DECODE_ERROR') {
+        const { fileName, error } = payload;
+        console.error(`Failed to decode ${fileName}:`, error);
+        addToast("error", `Failed to decode: ${fileName}`);
+        setLoading(false);
+      }
+    };
+
+    // Очистка воркера при размонтировании
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+    };
+  }, [addAsset]);
+
+  const addToast = useCallback((type: ToastMessage["type"], message: string) => {
+    const id = uid("toast");
+    setToasts((prev) => [...prev, { id, type, message }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
+
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
     setLoading(true);
     const engine = getAudioEngine();
     await engine.resume();
+    
     for (const f of Array.from(files)) {
       try {
         const arr = await f.arrayBuffer();
-        const { buffer, peaks, peaksPerSecond } = await decodeAndAnalyze(engine.ctx, arr);
-        const id = uid("asset");
-        engine.registerBuffer(id, buffer);
-        const asset: AudioAsset = {
-          id,
-          name: f.name,
-          durationSec: buffer.duration,
-          sampleRate: buffer.sampleRate,
-          numChannels: buffer.numberOfChannels,
-          peaks,
-          peaksPerSecond,
-        };
-        addAsset(asset);
+        
+        // Отправляем задачу в воркер вместо блокировки основного потока
+        if (workerRef.current) {
+          workerRef.current.postMessage({
+            type: 'DECODE_AUDIO',
+            payload: { fileData: arr, fileName: f.name }
+          } as WorkerMessage);
+        } else {
+          // Фолбэк на синхронное декодирование если воркер не доступен
+          const { buffer, peaks, peaksPerSecond } = await decodeAndAnalyze(engine.ctx, arr);
+          const id = uid("asset");
+          engine.registerBuffer(id, buffer);
+          const asset: AudioAsset = {
+            id,
+            name: f.name,
+            durationSec: buffer.duration,
+            sampleRate: buffer.sampleRate,
+            numChannels: buffer.numberOfChannels,
+            peaks,
+            peaksPerSecond,
+          };
+          addAsset(asset);
+          addToast("success", `Imported: ${f.name}`);
+        }
       } catch (err) {
         console.error("Failed to decode", f.name, err);
+        addToast("error", `Failed to decode: ${f.name}`);
+        setLoading(false);
       }
     }
-    setLoading(false);
-  };
+  }, [addAsset, addToast]);
 
   const addClipFromAsset = (asset: AudioAsset) => {
     const trackId = ui.selectedTrackId ?? project.tracks[0]?.id;
@@ -205,6 +306,24 @@ export function Sidebar() {
               </div>
             </section>
           )}
+        </div>
+
+        {/* Toast notifications */}
+        <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`pointer-events-auto flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm ${
+                toast.type === "error"
+                  ? "border-red-500/30 bg-red-500/10 text-red-200"
+                  : toast.type === "success"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+                  : "border-slate-500/30 bg-slate-500/10 text-slate-200"
+              }`}
+            >
+              <span className="text-sm font-medium">{toast.message}</span>
+            </div>
+          ))}
         </div>
       </div>
     </aside>

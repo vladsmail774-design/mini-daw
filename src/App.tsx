@@ -1,12 +1,60 @@
+import { useEffect } from "react";
 import { Transport } from "./components/Transport";
 import { Sidebar } from "./components/Sidebar";
 import { Timeline } from "./components/Timeline";
 import { Inspector } from "./components/Inspector";
 import { useAudioEngine } from "./audio/useAudioEngine";
+import { disposeAudioEngine } from "./audio/AudioEngine";
+import { useStore } from "./state/store";
 
 export default function App() {
   const { isPlaying, position, play, pause, stop, seek } = useAudioEngine();
   const stack = ["React 19", "Web Audio API", "Zustand", "Tailwind CSS"];
+
+  // Cleanup audio engine on unmount
+  useEffect(() => {
+    return () => {
+      disposeAudioEngine();
+    };
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Space - play/pause
+      if (e.code === "Space") {
+        e.preventDefault();
+        isPlaying ? pause() : play();
+      }
+
+      // Ctrl/Cmd + Z - undo
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        useStore.getState().undo();
+      }
+
+      // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y - redo
+      if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+        e.preventDefault();
+        useStore.getState().redo();
+      }
+
+      // L - toggle loop
+      if (e.key === "l" || e.key === "L") {
+        e.preventDefault();
+        const state = useStore.getState();
+        state.setLoop({ enabled: !state.project.loop.enabled });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPlaying, pause, play]);
 
   return (
     <div className="flex min-h-full flex-col overflow-hidden bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.14),transparent_32%),radial-gradient(circle_at_85%_0%,rgba(96,165,250,0.16),transparent_26%),#05070a] text-slate-100">

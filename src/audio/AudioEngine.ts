@@ -336,3 +336,14 @@ export function getAudioEngine(): AudioEngine {
   if (!singleton) singleton = new AudioEngine();
   return singleton;
 }
+
+/**
+ * Dispose of the singleton AudioEngine instance.
+ * Call this when unmounting the app to prevent memory leaks.
+ */
+export function disposeAudioEngine(): void {
+  if (singleton) {
+    singleton.dispose();
+    singleton = null;
+  }
+}
