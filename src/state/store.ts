@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { produce, type Draft } from "immer";
 import type {
   AudioAsset,
   Clip,
@@ -9,10 +10,12 @@ import type {
 } from "../types";
 import { uid } from "../utils/id";
 import { defaultEffect } from "./effects";
+import { saveProject, loadProject } from "../utils/storage";
 
 const TRACK_COLORS = ["#60a5fa", "#f472b6", "#fbbf24", "#34d399", "#c084fc", "#fb7185"];
 
-const initialProject: ProjectState = {
+// Начальное состояние проекта (будет обновлено после загрузки из storage)
+let initialProjectState: ProjectState = {
   bpm: 120,
   sampleRate: 44100,
   tracks: [
@@ -60,9 +63,9 @@ interface StoreState {
    * Mutates the project with the given updater. Pushes the prior state
    * onto the history stack so it can be undone.
    */
-  commit: (updater: (p: ProjectState) => ProjectState, description?: string) => void;
+  commit: (updater: (p: Draft<ProjectState>) => void, description?: string) => void;
   /** Mutates project without creating a history entry (for transient drags). */
-  mutate: (updater: (p: ProjectState) => ProjectState) => void;
+  mutate: (updater: (p: Draft<ProjectState>) => void) => void;
   undo: () => void;
   redo: () => void;
   // High-level ops used by UI:
@@ -87,25 +90,46 @@ interface StoreState {
 
 const MAX_HISTORY = 50;
 
+const loaded = loadProject();
+if (loaded && typeof loaded.then === 'function') {
+  // Если loadProject возвращает Promise (асинхронная версия)
+  loaded.then((serialized) => {
+    if (serialized?.projectState) {
+      console.log('[Store] Loaded project from storage');
+      initialProjectState = serialized.projectState;
+    }
+  }).catch(err => console.error('[Store] Failed to load project:', err));
+} else if (loaded) {
+  // Синхронная версия (для обратной совместимости)
+  const serialized = loaded as any;
+  if (serialized?.projectState) {
+    initialProjectState = serialized.projectState;
+    console.log('[Store] Loaded project from storage (sync)');
+  }
+}
+
 export const useStore = create<StoreState>((set, get) => ({
-  project: initialProject,
+  project: initialProjectState,
   ui: {
     selectedClipId: null,
-    selectedTrackId: initialProject.tracks[0]?.id ?? null,
+    selectedTrackId: initialProjectState.tracks[0]?.id ?? null,
     inspectorMode: "track",
   },
   past: [],
   future: [],
   commit: (updater) => {
     const prev = get().project;
-    const next = updater(prev);
+    const next = produce(prev, updater);
     if (next === prev) return;
     const past = [...get().past, { project: prev }].slice(-MAX_HISTORY);
     set({ project: next, past, future: [] });
+    
+    // Автосохранение после каждого коммита
+    saveProject(next).catch(err => console.error('[Store] Failed to autosave:', err));
   },
   mutate: (updater) => {
     const prev = get().project;
-    const next = updater(prev);
+    const next = produce(prev, updater);
     if (next === prev) return;
     set({ project: next });
   },
@@ -132,58 +156,51 @@ export const useStore = create<StoreState>((set, get) => ({
   addTrack: () =>
     get().commit((p) => {
       const color = TRACK_COLORS[p.tracks.length % TRACK_COLORS.length];
-      return { ...p, tracks: [...p.tracks, makeTrack(`Track ${p.tracks.length + 1}`, color)] };
+      p.tracks.push(makeTrack(`Track ${p.tracks.length + 1}`, color));
     }),
   removeTrack: (trackId) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.filter((t) => t.id !== trackId),
-      clips: p.clips.filter((c) => c.trackId !== trackId),
-    })),
+    get().commit((p) => {
+      p.tracks = p.tracks.filter((t) => t.id !== trackId);
+      p.clips = p.clips.filter((c) => c.trackId !== trackId);
+    }),
   setSelected: (sel) => set({ ui: { ...get().ui, ...sel } }),
   addAsset: (asset) =>
-    get().mutate((p) => ({
-      ...p,
-      assets: { ...p.assets, [asset.id]: asset },
-    })),
+    get().mutate((p) => {
+      p.assets[asset.id] = asset;
+    }),
   addClip: (clip) => {
     const id = uid("clip");
     get().commit((p) => {
       const end = clip.start + clip.duration;
-      const lengthSec = Math.max(p.lengthSec, end + 2);
-      return { ...p, clips: [...p.clips, { ...clip, id }], lengthSec };
+      p.lengthSec = Math.max(p.lengthSec, end + 2);
+      p.clips.push({ ...clip, id });
     });
     return id;
   },
   moveClip: (clipId, newStart, newTrackId) =>
-    get().commit((p) => ({
-      ...p,
-      clips: p.clips.map((c) =>
-        c.id === clipId
-          ? { ...c, start: Math.max(0, newStart), trackId: newTrackId ?? c.trackId }
-          : c,
-      ),
-    })),
-  resizeClip: (clipId, newStart, newDuration, newOffset) =>
-    get().commit((p) => ({
-      ...p,
-      clips: p.clips.map((c) =>
-        c.id === clipId
-          ? {
-              ...c,
-              start: Math.max(0, newStart),
-              duration: Math.max(0.05, newDuration),
-              offset: Math.max(0, newOffset),
-            }
-          : c,
-      ),
-    })),
-  splitClip: (clipId, atSec) =>
     get().commit((p) => {
       const clip = p.clips.find((c) => c.id === clipId);
-      if (!clip) return p;
+      if (clip) {
+        clip.start = Math.max(0, newStart);
+        if (newTrackId) clip.trackId = newTrackId;
+      }
+    }),
+  resizeClip: (clipId, newStart, newDuration, newOffset) =>
+    get().commit((p) => {
+      const clip = p.clips.find((c) => c.id === clipId);
+      if (clip) {
+        clip.start = Math.max(0, newStart);
+        clip.duration = Math.max(0.05, newDuration);
+        clip.offset = Math.max(0, newOffset);
+      }
+    }),
+  splitClip: (clipId, atSec) =>
+    get().commit((p) => {
+      const clipIndex = p.clips.findIndex((c) => c.id === clipId);
+      if (clipIndex === -1) return;
+      const clip = p.clips[clipIndex];
       const local = atSec - clip.start;
-      if (local <= 0.01 || local >= clip.duration - 0.01) return p;
+      if (local <= 0.01 || local >= clip.duration - 0.01) return;
       const left: Clip = { ...clip, duration: local };
       const right: Clip = {
         ...clip,
@@ -192,58 +209,52 @@ export const useStore = create<StoreState>((set, get) => ({
         offset: clip.offset + local,
         duration: clip.duration - local,
       };
-      return { ...p, clips: p.clips.flatMap((c) => (c.id === clipId ? [left, right] : [c])) };
+      p.clips.splice(clipIndex, 1, left, right);
     }),
   deleteClip: (clipId) =>
-    get().commit((p) => ({ ...p, clips: p.clips.filter((c) => c.id !== clipId) })),
+    get().commit((p) => {
+      p.clips = p.clips.filter((c) => c.id !== clipId);
+    }),
   updateTrack: (trackId, patch) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.map((t) => (t.id === trackId ? { ...t, ...patch } : t)),
-    })),
+    get().commit((p) => {
+      const track = p.tracks.find((t) => t.id === trackId);
+      if (track) Object.assign(track, patch);
+    }),
   addEffect: (trackId, type) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.map((t) =>
-        t.id === trackId ? { ...t, effects: [...t.effects, defaultEffect(type)] } : t,
-      ),
-    })),
+    get().commit((p) => {
+      const track = p.tracks.find((t) => t.id === trackId);
+      if (track) track.effects.push(defaultEffect(type));
+    }),
   updateEffect: (trackId, effectId, patch) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.map((t) =>
-        t.id === trackId
-          ? {
-              ...t,
-              effects: t.effects.map((e) =>
-                e.id === effectId ? ({ ...e, ...patch } as Effect) : e,
-              ),
-            }
-          : t,
-      ),
-    })),
+    get().commit((p) => {
+      const track = p.tracks.find((t) => t.id === trackId);
+      if (track) {
+        const effect = track.effects.find((e) => e.id === effectId);
+        if (effect) Object.assign(effect, patch);
+      }
+    }),
   removeEffect: (trackId, effectId) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.map((t) =>
-        t.id === trackId ? { ...t, effects: t.effects.filter((e) => e.id !== effectId) } : t,
-      ),
-    })),
+    get().commit((p) => {
+      const track = p.tracks.find((t) => t.id === trackId);
+      if (track) track.effects = track.effects.filter((e) => e.id !== effectId);
+    }),
   reorderEffect: (trackId, fromIdx, toIdx) =>
-    get().commit((p) => ({
-      ...p,
-      tracks: p.tracks.map((t) => {
-        if (t.id !== trackId) return t;
-        const arr = t.effects.slice();
-        const [item] = arr.splice(fromIdx, 1);
-        if (!item) return t;
-        arr.splice(toIdx, 0, item);
-        return { ...t, effects: arr };
-      }),
-    })),
+    get().commit((p) => {
+      const track = p.tracks.find((t) => t.id === trackId);
+      if (!track) return;
+      const arr = track.effects;
+      const [item] = arr.splice(fromIdx, 1);
+      if (item) arr.splice(toIdx, 0, item);
+    }),
   setLoop: (patch) =>
-    get().commit((p) => ({ ...p, loop: { ...p.loop, ...patch } })),
-  setZoom: (pxPerSec) => get().mutate((p) => ({ ...p, pxPerSec })),
+    get().commit((p) => {
+      Object.assign(p.loop, patch);
+    }),
+  setZoom: (pxPerSec) => get().mutate((p) => {
+    p.pxPerSec = pxPerSec;
+  }),
   setMasterVolumeDb: (db) =>
-    get().commit((p) => ({ ...p, masterVolumeDb: db })),
+    get().commit((p) => {
+      p.masterVolumeDb = db;
+    }),
 }));

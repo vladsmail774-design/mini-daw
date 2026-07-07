@@ -98,7 +98,6 @@ export function Timeline({ position, onSeek }: Props) {
             style={{ width: HEADER_WIDTH + bodyWidth, minHeight: RULER_HEIGHT + bodyHeight }}
           >
             <Ruler
-              project={project}
               pxPerSec={pxPerSec}
               bodyWidth={bodyWidth}
               onSeek={(sec) => onSeek(sec)}
@@ -229,13 +228,11 @@ export function Timeline({ position, onSeek }: Props) {
 }
 
 function Ruler({
-  project,
   pxPerSec,
   bodyWidth,
   onSeek,
   setLoopRegion,
 }: {
-  project: ReturnType<typeof useStore.getState>["project"];
   pxPerSec: number;
   bodyWidth: number;
   onSeek: (sec: number) => void;

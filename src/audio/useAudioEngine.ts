@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAudioEngine } from "./AudioEngine";
+import { disposeAudioEngine, getAudioEngine } from "./AudioEngine";
 import { useStore } from "../state/store";
 
 /**
@@ -14,7 +14,10 @@ export function useAudioEngine() {
   useEffect(() => {
     const engine = getAudioEngine();
     engine.setOnTick((p) => setPosition(p));
-    return () => engine.setOnTick(null);
+    return () => {
+      engine.setOnTick(null);
+      disposeAudioEngine();
+    };
   }, []);
 
   // Keep live chains in sync with state while playing — volume/pan/effects
