@@ -1,0 +1,21 @@
+appId: app.mini-daw
+productName: Mini DAW
+icon: build/icon.ico
+directories:
+  output: release/2.1.0
+files:
+  - dist/**/*
+  - electron/**/*
+  - build/icon.ico
+  - package.json
+win:
+  signAndEditExecutable: true
+  icon: build/icon.ico
+  target:
+    - portable
+    - nsis
+portable:
+  artifactName: Mini-DAW-${version}-portable.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "testedAt": "2026-09-28T17:04:31.080Z",
+  "executable": "C:\\Users\\slava\\Documents\\Новая папка (2)\\mini-daw\\release\\2.1.0\\Mini-DAW-2.1.0-portable.exe",
+  "sha256": "e55ea6b98befb0eead142cc20db86bd050bebc3dfd256f3b460250cc8cc4bc02",
+  "runtime": {
+    "appVersion": "2.1.0",
+    "electron": "44.4.5",
+    "chrome": "152.0.7977.130",
+    "userData": "C:\\Users\\slava\\Documents\\Новая папка (2)\\mini-daw\\test-results\\portable-smoke-1790615046927\\Mini DAW Data",
+    "sandbox": true
+  },
+  "folder": "C:\\Users\\slava\\Documents\\Новая папка (2)\\mini-daw\\test-results\\portable-smoke-1790615046927",
+  "audioEvidence": {
+    "litMeterPixels": 378,
+    "playedTime": "0:01.84",
+    "wavHeader": {
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitDepth": 24,
+      "duration": 5
+    },
+    "wavePeak": 0.36622154712677
+  },
+  "checks": [
+    "portable executable launch",
+    "import WAV",
+    "drag undo redo",
+    "save including original audio",
+    "full process restart recovery",
+    "open saved project",
+    "atomic save backup",
+    "transport advances with visible audio meter",
+    "WAV/MP3 export with non-silent PCM",
+    "900x560 commands and panel collapse",
+    "RU/EN switching",
+    "150% content scale commands",
+    "sandbox enabled"
+  ],
+  "limitations": [
+    "No acoustic hardware listening or Android device test",
+    "150% was Electron content zoom; OS display scaling was not changed"
+  ]
+}

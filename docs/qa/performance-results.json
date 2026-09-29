@@ -1,0 +1,982 @@
+{
+  "measuredAt": "2026-09-28T17:00:14.031Z",
+  "mode": "automated-active-scroll-drag-zoom-and-input-response",
+  "headless": true,
+  "environment": {
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "platform": "win32",
+    "node": "v24.15.0",
+    "cpu": "AMD Ryzen 5 7400F 6-Core Processor             ",
+    "logicalCpuCount": 12,
+    "physicalMemoryBytes": 33934004224
+  },
+  "method": {
+    "warmupRafFrames": 30,
+    "phaseWindowMs": 1600,
+    "dragEdgeHoldMs": 450,
+    "zoomWheelEvents": 20,
+    "zoomDeltaY": 200,
+    "inputTiming": "Capture browser-dispatched pointermove/wheel Event.timeStamp, then record two RAF callbacks. This is a paint-opportunity responsiveness proxy, not physical input-to-display latency.",
+    "thresholds": "At least three RAF callbacks, nonempty input timing samples, a completed valid drag, reversible wheel zoom, virtualized rows, and canvas width bounded by viewport physical pixels. No FPS or latency threshold."
+  },
+  "limitations": [
+    "Headless Chromium/Edge on this host, no visible-window, physical mouse, touchpad, GPU-compositor or high-DPI hardware validation.",
+    "RAF gaps measure main-thread responsiveness under this short scripted workload; they are not a guaranteed or hardware-independent FPS.",
+    "PerformanceObserver long tasks are browser-exposed tasks >= 50 ms; this does not capture every cause of jank.",
+    "Canvas bytes are width × height × 4 estimates for current backing stores, not measured GPU process memory; memory estimates exclude native decoded AudioBuffers and GPU allocations.",
+    "performance.memory values, if available, are browser estimates, not a memory-leak test. Project setup/import excluded from RAF sampling; drag history/model updates, active scrolling, cache creation and normal autosave may be included.",
+    "600/1200 clips reference one four-second asset. This tests timeline scale rather than many independent long audio files or simultaneous audio playback.",
+    "Three actual import/delete cycles verify removal of unused media from metadata, encoded-Blob and AudioBuffer registries. PCM bytes are length × channels × 4 estimates, not measured native allocations; no forced GC or heap-return guarantee. Media still referenced by clips or Undo history is intentionally retained."
+  ],
+  "results": [
+    {
+      "tracks": 30,
+      "clips": 600,
+      "lengthSec": 600,
+      "initialZoomPxPerSec": 500,
+      "scroll": {
+        "mode": "scroll",
+        "elapsedMs": 1609.4000000000233,
+        "frames": 96,
+        "meanRafGapMs": 16.593749999999876,
+        "observedRafHz": 60.26365348399291,
+        "p50RafGapMs": 16.699999999999818,
+        "p95RafGapMs": 16.799999999999955,
+        "p99RafGapMs": 16.800000000000182,
+        "maxRafGapMs": 16.800000000000182,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 0,
+          "meanEventToSecondRafMs": null,
+          "p95EventToSecondRafMs": null,
+          "maxEventToSecondRafMs": null,
+          "measurements": []
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longestTaskMs": 0,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 14,
+        "maxCanvasBackingStoreBytesEstimate": 2268668,
+        "maxRenderedRows": 11,
+        "maxRenderedClips": 11,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 22320064,
+          "totalJSHeapBytes": 30080620,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 22069322,
+          "totalJSHeapBytes": 39265802,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "drag": {
+        "mode": "drag",
+        "elapsedMs": 1612.7999999999884,
+        "frames": 96,
+        "meanRafGapMs": 16.638541666666544,
+        "observedRafHz": 60.101421148188,
+        "p50RafGapMs": 16.699999999999818,
+        "p95RafGapMs": 16.799999999999727,
+        "p99RafGapMs": 16.800000000000182,
+        "maxRafGapMs": 16.800000000000182,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 28,
+          "meanEventToSecondRafMs": 26.95714285712872,
+          "p95EventToSecondRafMs": 30,
+          "maxEventToSecondRafMs": 30.09999999998854,
+          "measurements": [
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.900000000000091,
+              "eventToSecondRafMs": 29.59999999999991,
+              "handlerToSecondRafMs": 16.30000000001155
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 9.699999999976626,
+              "eventToSecondRafMs": 26.3999999999769,
+              "handlerToSecondRafMs": 16.300000000000182
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 8.59999999998854,
+              "eventToSecondRafMs": 25.19999999998845,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 4.999999999976808,
+              "eventToSecondRafMs": 21.699999999976626,
+              "handlerToSecondRafMs": 16.09999999999991
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.099999999999909,
+              "eventToSecondRafMs": 27.800000000000182,
+              "handlerToSecondRafMs": 16.500000000011823
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.199999999965257,
+              "eventToSecondRafMs": 28.799999999965166,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.799999999965166,
+              "eventToSecondRafMs": 28.599999999964894,
+              "handlerToSecondRafMs": 16.299999999976535
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.199999999999818,
+              "eventToSecondRafMs": 23.699999999999818,
+              "handlerToSecondRafMs": 16.299999999976535
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.199999999999818,
+              "eventToSecondRafMs": 29.90000000000009,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.600000000011732,
+              "eventToSecondRafMs": 29.40000000001146,
+              "handlerToSecondRafMs": 16.499999999988177
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.499999999988177,
+              "eventToSecondRafMs": 30.09999999998854,
+              "handlerToSecondRafMs": 16.300000000000182
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.899999999976899,
+              "eventToSecondRafMs": 28.499999999976808,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 8.600000000011732,
+              "eventToSecondRafMs": 25.30000000001155,
+              "handlerToSecondRafMs": 16.399999999988268
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.199999999976626,
+              "eventToSecondRafMs": 29.8999999999769,
+              "handlerToSecondRafMs": 16.3999999999769
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 10.899999999976899,
+              "eventToSecondRafMs": 27.499999999976808,
+              "handlerToSecondRafMs": 16.40000000000009
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.299999999965166,
+              "eventToSecondRafMs": 28.999999999964984,
+              "handlerToSecondRafMs": 16.399999999988268
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.30000000001155,
+              "eventToSecondRafMs": 28.90000000001146,
+              "handlerToSecondRafMs": 16.40000000001146
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 6.999999999988177,
+              "eventToSecondRafMs": 23.69999999998845,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.400000000000091,
+              "eventToSecondRafMs": 30,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.899999999965075,
+              "eventToSecondRafMs": 28.599999999964894,
+              "handlerToSecondRafMs": 16.299999999976535
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.299999999976535,
+              "eventToSecondRafMs": 28.999999999976808,
+              "handlerToSecondRafMs": 16.299999999965166
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 8.400000000000091,
+              "eventToSecondRafMs": 25.09999999999991,
+              "handlerToSecondRafMs": 16.399999999988268
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 6.8999999999882675,
+              "eventToSecondRafMs": 23.59999999998854,
+              "handlerToSecondRafMs": 16.3999999999769
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.699999999965257,
+              "eventToSecondRafMs": 29.399999999965075,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.5,
+              "eventToSecondRafMs": 28.199999999999818,
+              "handlerToSecondRafMs": 16.40000000001146
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 8.699999999999818,
+              "eventToSecondRafMs": 25.300000000000182,
+              "handlerToSecondRafMs": 16.3999999999769
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 0.3999999999650754,
+              "eventToSecondRafMs": 16.999999999964984,
+              "handlerToSecondRafMs": 16.499999999964984
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.9999999999649845,
+              "eventToSecondRafMs": 24.599999999964894,
+              "handlerToSecondRafMs": 16.40000000001146
+            }
+          ]
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longestTaskMs": 0,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 11,
+        "maxCanvasBackingStoreBytesEstimate": 1713440,
+        "maxRenderedRows": 8,
+        "maxRenderedClips": 8,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 26188070,
+          "totalJSHeapBytes": 39529286,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 31850104,
+          "totalJSHeapBytes": 52636304,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "zoom": {
+        "mode": "zoom",
+        "elapsedMs": 1605.7000000000116,
+        "frames": 91,
+        "meanRafGapMs": 17.537362637362513,
+        "observedRafHz": 57.0211166113169,
+        "p50RafGapMs": 16.699999999999818,
+        "p95RafGapMs": 16.800000000000182,
+        "p99RafGapMs": 50,
+        "maxRafGapMs": 50,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 12,
+          "meanEventToSecondRafMs": 64.97499999998945,
+          "p95EventToSecondRafMs": 94.80000000000018,
+          "maxEventToSecondRafMs": 94.80000000000018,
+          "measurements": [
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 45.799999999976535,
+              "eventToSecondRafMs": 62.3999999999769,
+              "handlerToSecondRafMs": 16.3999999999769
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 42.399999999965075,
+              "eventToSecondRafMs": 59.09999999996489,
+              "handlerToSecondRafMs": 16.299999999976535
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 42.69999999996526,
+              "eventToSecondRafMs": 59.399999999965075,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 39.5,
+              "eventToSecondRafMs": 56.100000000000364,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 40.39999999998872,
+              "eventToSecondRafMs": 57.09999999998854,
+              "handlerToSecondRafMs": 16.300000000000182
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 43.199999999987995,
+              "eventToSecondRafMs": 59.89999999998872,
+              "handlerToSecondRafMs": 16.19999999997708
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 36.20000000001164,
+              "eventToSecondRafMs": 52.800000000012005,
+              "handlerToSecondRafMs": 16.100000000000364
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 48.100000000000364,
+              "eventToSecondRafMs": 64.80000000000018,
+              "handlerToSecondRafMs": 16.199999999965257
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 44.80000000000018,
+              "eventToSecondRafMs": 94.80000000000018,
+              "handlerToSecondRafMs": 49.50000000001182
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 39.79999999998836,
+              "eventToSecondRafMs": 89.699999999988,
+              "handlerToSecondRafMs": 49.399999999999636
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 35.49999999998818,
+              "eventToSecondRafMs": 68.79999999998836,
+              "handlerToSecondRafMs": 32.70000000001164
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 38.19999999999982,
+              "eventToSecondRafMs": 54.80000000000018,
+              "handlerToSecondRafMs": 16.09999999998854
+            }
+          ]
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 2,
+        "longTaskTotalMs": 109,
+        "longestTaskMs": 59,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 35,
+        "maxCanvasBackingStoreBytesEstimate": 692448,
+        "maxRenderedRows": 8,
+        "maxRenderedClips": 32,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 23753900,
+          "totalJSHeapBytes": 53947420,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 29526267,
+          "totalJSHeapBytes": 58938767,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "gestureResult": {
+        "clipStart": 2,
+        "transaction": false,
+        "clips": 600,
+        "tracks": 30
+      }
+    },
+    {
+      "tracks": 60,
+      "clips": 1200,
+      "lengthSec": 600,
+      "initialZoomPxPerSec": 500,
+      "scroll": {
+        "mode": "scroll",
+        "elapsedMs": 1609.6999999999534,
+        "frames": 97,
+        "meanRafGapMs": 16.587628865979024,
+        "observedRafHz": 60.28589185829837,
+        "p50RafGapMs": 16.69999999999891,
+        "p95RafGapMs": 16.799999999999272,
+        "p99RafGapMs": 16.800000000000182,
+        "maxRafGapMs": 16.800000000000182,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 0,
+          "meanEventToSecondRafMs": null,
+          "p95EventToSecondRafMs": null,
+          "maxEventToSecondRafMs": null,
+          "measurements": []
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longestTaskMs": 0,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 14,
+        "maxCanvasBackingStoreBytesEstimate": 2268668,
+        "maxRenderedRows": 11,
+        "maxRenderedClips": 11,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 25883841,
+          "totalJSHeapBytes": 59978137,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 32732821,
+          "totalJSHeapBytes": 75708481,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "drag": {
+        "mode": "drag",
+        "elapsedMs": 1606.899999999965,
+        "frames": 96,
+        "meanRafGapMs": 16.647916666666294,
+        "observedRafHz": 60.06757602302724,
+        "p50RafGapMs": 16.69999999999891,
+        "p95RafGapMs": 16.80000000000109,
+        "p99RafGapMs": 16.80000000000109,
+        "maxRafGapMs": 16.80000000000109,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 28,
+          "meanEventToSecondRafMs": 27.907142857131216,
+          "p95EventToSecondRafMs": 30.799999999999272,
+          "maxEventToSecondRafMs": 31.29999999998836,
+          "measurements": [
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 0.9999999999654392,
+              "eventToSecondRafMs": 17.599999999965803,
+              "handlerToSecondRafMs": 16.099999999965803
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 9.799999999977445,
+              "eventToSecondRafMs": 26.499999999976353,
+              "handlerToSecondRafMs": 16.29999999996471
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.100000000011278,
+              "eventToSecondRafMs": 28.90000000001237,
+              "handlerToSecondRafMs": 16.499999999989086
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.2999999999774445,
+              "eventToSecondRafMs": 23.799999999977445,
+              "handlerToSecondRafMs": 16.299999999977445
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.799999999977445,
+              "eventToSecondRafMs": 29.499999999976353,
+              "handlerToSecondRafMs": 16.399999999999636
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.899999999999636,
+              "eventToSecondRafMs": 30.600000000000364,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.99999999996544,
+              "eventToSecondRafMs": 30.699999999964348,
+              "handlerToSecondRafMs": 16.39999999997599
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.799999999999272,
+              "eventToSecondRafMs": 24.5,
+              "handlerToSecondRafMs": 16.5
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.200000000011642,
+              "eventToSecondRafMs": 29.90000000001237,
+              "handlerToSecondRafMs": 16.499999999989086
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 14.200000000000728,
+              "eventToSecondRafMs": 30.799999999999272,
+              "handlerToSecondRafMs": 16.39999999997599
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 14.09999999998763,
+              "eventToSecondRafMs": 30.79999999998836,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 11.599999999976717,
+              "eventToSecondRafMs": 28.19999999997708,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 6.399999999988722,
+              "eventToSecondRafMs": 23.09999999998763,
+              "handlerToSecondRafMs": 16.299999999999272
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.59999999998763,
+              "eventToSecondRafMs": 29.29999999998836,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.799999999988358,
+              "eventToSecondRafMs": 30.399999999988722,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 14.100000000000364,
+              "eventToSecondRafMs": 30.799999999999272,
+              "handlerToSecondRafMs": 16.299999999999272
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 13.000000000010914,
+              "eventToSecondRafMs": 29.600000000011278,
+              "handlerToSecondRafMs": 16.29999999996471
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.600000000011278,
+              "eventToSecondRafMs": 24.300000000012005,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.49999999996544,
+              "eventToSecondRafMs": 29.199999999964348,
+              "handlerToSecondRafMs": 16.299999999999272
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.199999999964348,
+              "eventToSecondRafMs": 28.79999999996471,
+              "handlerToSecondRafMs": 16.199999999987995
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.999999999976353,
+              "eventToSecondRafMs": 29.69999999997708,
+              "handlerToSecondRafMs": 16.19999999997708
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 14.59999999998763,
+              "eventToSecondRafMs": 31.29999999998836,
+              "handlerToSecondRafMs": 16.29999999998836
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 8.200000000011642,
+              "eventToSecondRafMs": 24.800000000012005,
+              "handlerToSecondRafMs": 16.300000000012005
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.49999999996544,
+              "eventToSecondRafMs": 29.199999999964348,
+              "handlerToSecondRafMs": 16.299999999999272
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.199999999964348,
+              "eventToSecondRafMs": 28.899999999965075,
+              "handlerToSecondRafMs": 16.399999999965075
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 12.599999999976717,
+              "eventToSecondRafMs": 29.19999999997708,
+              "handlerToSecondRafMs": 16.19999999997708
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 10.500000000010914,
+              "eventToSecondRafMs": 27.100000000011278,
+              "handlerToSecondRafMs": 16.199999999987995
+            },
+            {
+              "type": "pointermove",
+              "trusted": true,
+              "eventToFirstRafMs": 7.100000000011278,
+              "eventToSecondRafMs": 23.90000000001237,
+              "handlerToSecondRafMs": 16.40000000001237
+            }
+          ]
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longestTaskMs": 0,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 11,
+        "maxCanvasBackingStoreBytesEstimate": 1713440,
+        "maxRenderedRows": 8,
+        "maxRenderedClips": 8,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 22344246,
+          "totalJSHeapBytes": 76232998,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 36301527,
+          "totalJSHeapBytes": 81362087,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "zoom": {
+        "mode": "zoom",
+        "elapsedMs": 1603.7999999999884,
+        "frames": 91,
+        "meanRafGapMs": 17.464835164834778,
+        "observedRafHz": 57.25791228843014,
+        "p50RafGapMs": 16.69999999999891,
+        "p95RafGapMs": 16.80000000000109,
+        "p99RafGapMs": 49.899999999999636,
+        "maxRafGapMs": 49.899999999999636,
+        "inputResponseProxy": {
+          "method": "Event.timeStamp to first and second requestAnimationFrame callbacks; the second follows one browser paint opportunity, not confirmed compositor presentation",
+          "samples": 12,
+          "meanEventToSecondRafMs": 70.7833333333139,
+          "p95EventToSecondRafMs": 102.99999999996544,
+          "maxEventToSecondRafMs": 102.99999999996544,
+          "measurements": [
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 39.09999999998763,
+              "eventToSecondRafMs": 55.79999999998836,
+              "handlerToSecondRafMs": 16.20000000001164
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 39.899999999965075,
+              "eventToSecondRafMs": 56.5999999999658,
+              "handlerToSecondRafMs": 16.299999999977445
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 44.59999999998763,
+              "eventToSecondRafMs": 61.29999999998836,
+              "handlerToSecondRafMs": 16.20000000001164
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 34.79999999998836,
+              "eventToSecondRafMs": 51.39999999998872,
+              "handlerToSecondRafMs": 16.100000000000364
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 40.0999999999658,
+              "eventToSecondRafMs": 56.69999999996435,
+              "handlerToSecondRafMs": 16.199999999964348
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 56.69999999997708,
+              "eventToSecondRafMs": 73.39999999997599,
+              "handlerToSecondRafMs": 16.199999999964348
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 60.500000000010914,
+              "eventToSecondRafMs": 77.20000000001164,
+              "handlerToSecondRafMs": 16.29999999998836
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 57.399999999965075,
+              "eventToSecondRafMs": 74.0999999999658,
+              "handlerToSecondRafMs": 16.40000000001237
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 53.0999999999658,
+              "eventToSecondRafMs": 102.99999999996544,
+              "handlerToSecondRafMs": 49.49999999996544
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 38.49999999997635,
+              "eventToSecondRafMs": 88.39999999997599,
+              "handlerToSecondRafMs": 49.29999999999927
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 35.600000000000364,
+              "eventToSecondRafMs": 68.89999999999964,
+              "handlerToSecondRafMs": 32.699999999987995
+            },
+            {
+              "type": "wheel",
+              "trusted": true,
+              "eventToFirstRafMs": 65.89999999997599,
+              "eventToSecondRafMs": 82.59999999997672,
+              "handlerToSecondRafMs": 16
+            }
+          ]
+        },
+        "longTaskSupported": true,
+        "longTaskCount": 2,
+        "longTaskTotalMs": 109,
+        "longestTaskMs": 59,
+        "maxCanvasWidth": 1035,
+        "maxCanvasCount": 35,
+        "maxCanvasBackingStoreBytesEstimate": 692448,
+        "maxRenderedRows": 8,
+        "maxRenderedClips": 32,
+        "jsHeapBefore": {
+          "usedJSHeapBytes": 41217153,
+          "totalJSHeapBytes": 81362397,
+          "limitBytes": 4395630592
+        },
+        "jsHeapAfter": {
+          "usedJSHeapBytes": 25348901,
+          "totalJSHeapBytes": 84983605,
+          "limitBytes": 4395630592
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 800,
+          "devicePixelRatio": 1
+        }
+      },
+      "gestureResult": {
+        "clipStart": 2,
+        "transaction": false,
+        "clips": 1200,
+        "tracks": 60
+      }
+    }
+  ],
+  "repeatedImportDelete": {
+    "assetDurationSec": 4,
+    "cycles": 3,
+    "baseline": {
+      "documentAssetCount": 1,
+      "metadataRegistryCount": 1,
+      "runtimeBufferCount": 1,
+      "decodedPcmBytesEstimate": 3072000,
+      "originalBlobCount": 1,
+      "originalBlobBytes": 64044,
+      "waveformBytes": 3200,
+      "jsHeapUsedBytes": 39293267,
+      "jsHeapAllocatedBytes": 85767003,
+      "removedMediaStillRegistered": []
+    },
+    "measurements": [
+      {
+        "cycle": 1,
+        "imported": {
+          "documentAssetCount": 2,
+          "metadataRegistryCount": 2,
+          "runtimeBufferCount": 2,
+          "decodedPcmBytesEstimate": 6144000,
+          "originalBlobCount": 2,
+          "originalBlobBytes": 128088,
+          "waveformBytes": 6400,
+          "jsHeapUsedBytes": 28909821,
+          "jsHeapAllocatedBytes": 89169497,
+          "removedMediaStillRegistered": []
+        },
+        "afterDelete": {
+          "documentAssetCount": 1,
+          "metadataRegistryCount": 1,
+          "runtimeBufferCount": 1,
+          "decodedPcmBytesEstimate": 3072000,
+          "originalBlobCount": 1,
+          "originalBlobBytes": 64044,
+          "waveformBytes": 3200,
+          "jsHeapUsedBytes": 28909821,
+          "jsHeapAllocatedBytes": 89169497,
+          "removedMediaStillRegistered": []
+        }
+      },
+      {
+        "cycle": 2,
+        "imported": {
+          "documentAssetCount": 2,
+          "metadataRegistryCount": 2,
+          "runtimeBufferCount": 2,
+          "decodedPcmBytesEstimate": 6144000,
+          "originalBlobCount": 2,
+          "originalBlobBytes": 128088,
+          "waveformBytes": 6400,
+          "jsHeapUsedBytes": 43829986,
+          "jsHeapAllocatedBytes": 94419386,
+          "removedMediaStillRegistered": []
+        },
+        "afterDelete": {
+          "documentAssetCount": 1,
+          "metadataRegistryCount": 1,
+          "runtimeBufferCount": 1,
+          "decodedPcmBytesEstimate": 3072000,
+          "originalBlobCount": 1,
+          "originalBlobBytes": 64044,
+          "waveformBytes": 3200,
+          "jsHeapUsedBytes": 43829986,
+          "jsHeapAllocatedBytes": 94419386,
+          "removedMediaStillRegistered": []
+        }
+      },
+      {
+        "cycle": 3,
+        "imported": {
+          "documentAssetCount": 2,
+          "metadataRegistryCount": 2,
+          "runtimeBufferCount": 2,
+          "decodedPcmBytesEstimate": 6144000,
+          "originalBlobCount": 2,
+          "originalBlobBytes": 128088,
+          "waveformBytes": 6400,
+          "jsHeapUsedBytes": 58505730,
+          "jsHeapAllocatedBytes": 99605138,
+          "removedMediaStillRegistered": []
+        },
+        "afterDelete": {
+          "documentAssetCount": 1,
+          "metadataRegistryCount": 1,
+          "runtimeBufferCount": 1,
+          "decodedPcmBytesEstimate": 3072000,
+          "originalBlobCount": 1,
+          "originalBlobBytes": 64044,
+          "waveformBytes": 3200,
+          "jsHeapUsedBytes": 58505730,
+          "jsHeapAllocatedBytes": 99605138,
+          "removedMediaStillRegistered": []
+        }
+      }
+    ]
+  }
+}

@@ -3,6 +3,8 @@ import type { Eq10Effect, Eq10Band } from "../types";
 import { eq10Response } from "../audio/eq10band";
 import { logFrequencies } from "../audio/analyzer";
 import { EQ10_PRESETS, applyEq10Preset } from "../state/effects";
+import { useI18n } from "../i18n";
+import { useControlLabel } from "../i18n/controls";
 
 interface Props {
   effect: Eq10Effect;
@@ -19,6 +21,8 @@ const MAX_DB = 18;
  * via a numeric scrub.
  */
 export function EQPanel({ effect, onChange }: Props) {
+  const { locale } = useI18n();
+  const label = useControlLabel();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // Throwaway OfflineAudioContext just for biquad response math; cheap.
   const ctx = useMemo(() => new OfflineAudioContext(1, 1, 44100), []);
@@ -58,7 +62,7 @@ export function EQPanel({ effect, onChange }: Props) {
     if (effect.bypass) {
       g.fillStyle = "#9ca3af";
       g.font = "12px monospace";
-      g.fillText("BYPASSED", 8, 16);
+      g.fillText(locale === "ru" ? "ОБХОД" : "BYPASSED", 8, 16);
       return;
     }
 
@@ -102,7 +106,7 @@ export function EQPanel({ effect, onChange }: Props) {
       g.arc(x, y, 3, 0, Math.PI * 2);
       g.fill();
     }
-  }, [effect, ctx, freqs]);
+  }, [effect, ctx, freqs, locale]);
 
   const updateBand = (idx: number, patch: Partial<Eq10Band>) => {
     const next = effect.bands.map((b, i) => (i === idx ? { ...b, ...patch } : b));
@@ -119,6 +123,7 @@ export function EQPanel({ effect, onChange }: Props) {
     <div className="mt-1 mb-2">
       <div className="flex items-center gap-1 mb-1">
         <select
+          aria-label={locale === "ru" ? "Пресет эквалайзера" : "EQ preset"}
           className="bg-bg-3 text-xs px-1 py-0.5 rounded flex-1"
           onChange={(e) => {
             if (e.target.value) applyPresetByName(e.target.value);
@@ -127,20 +132,20 @@ export function EQPanel({ effect, onChange }: Props) {
           defaultValue=""
         >
           <option value="" disabled>
-            Preset…
+            {locale === "ru" ? "Пресет…" : "Preset…"}
           </option>
           {EQ10_PRESETS.map((p) => (
             <option key={p.name} value={p.name}>
-              {p.name}
+              {label(p.name)}
             </option>
           ))}
         </select>
         <button
           className="text-[10px] px-2 py-0.5 rounded bg-bg-3 hover:bg-bg-2"
           onClick={() => onChange({ bands: applyEq10Preset(EQ10_PRESETS[0]) })}
-          title="Reset all bands to 0 dB"
+          title={locale === "ru" ? "Сбросить все полосы к 0 дБ" : "Reset all bands to 0 dB"}
         >
-          Reset
+          {locale === "ru" ? "Сброс" : "Reset"}
         </button>
       </div>
 
@@ -155,6 +160,7 @@ export function EQPanel({ effect, onChange }: Props) {
           <BandSlider
             key={i}
             band={band}
+            label={`${locale === "ru" ? "Усиление полосы" : "Band gain"} ${formatHz(band.freqHz)} Hz`}
             onChange={(patch) => updateBand(i, patch)}
           />
         ))}
@@ -165,9 +171,11 @@ export function EQPanel({ effect, onChange }: Props) {
 
 function BandSlider({
   band,
+  label,
   onChange,
 }: {
   band: Eq10Band;
+  label: string;
   onChange: (patch: Partial<Eq10Band>) => void;
 }) {
   return (
@@ -177,6 +185,7 @@ function BandSlider({
         {band.gainDb.toFixed(1)}
       </div>
       <input
+        aria-label={label}
         type="range"
         className="vertical-slider"
         min={-18}

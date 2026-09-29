@@ -5,14 +5,14 @@ export default {
     extend: {
       colors: {
         bg: {
-          0: "#0b0d10",
-          1: "#12161b",
-          2: "#181e25",
-          3: "#222a33",
+          0: "rgb(var(--md-bg-0-rgb) / <alpha-value>)",
+          1: "rgb(var(--md-bg-1-rgb) / <alpha-value>)",
+          2: "rgb(var(--md-bg-2-rgb) / <alpha-value>)",
+          3: "rgb(var(--md-bg-3-rgb) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "#4ade80",
-          600: "#22c55e",
+          DEFAULT: "rgb(var(--md-accent-rgb) / <alpha-value>)",
+          600: "rgb(var(--md-accent-600-rgb) / <alpha-value>)",
         },
         track: {
           1: "#60a5fa",

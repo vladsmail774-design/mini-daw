@@ -1,0 +1,33 @@
+{
+  "appVersion": "2.1.0",
+  "builtAt": "2026-09-28T17:03:59.843Z",
+  "generatedAt": "2026-09-28T17:04:08.748Z",
+  "artifact": "Mini-DAW-2.1.0-portable.exe",
+  "bytes": 102280878,
+  "sha256": "e55ea6b98befb0eead142cc20db86bd050bebc3dfd256f3b460250cc8cc4bc02",
+  "platform": "win32",
+  "architecture": "x64",
+  "node": "v24.15.0",
+  "electron": "44.4.5",
+  "signed": false,
+  "windowsMetadata": {
+    "fileVersion": "2.1.0",
+    "productName": "Mini DAW",
+    "productVersion": "2.1.0",
+    "signatureStatus": "NotSigned"
+  },
+  "bundles": [
+    {
+      "path": "dist/assets/index-ClPWyI8A.css",
+      "sha256": "35213975eb62d07068c638e499475a5a8df6381b7c51f64b0b186160975ab00d"
+    },
+    {
+      "path": "dist/assets/index-Qf2nwF0I.js",
+      "sha256": "6e8781fe98b9c9b432a8f391e2f7aee712ea32a304db377e419f926a0315c2f9"
+    },
+    {
+      "path": "dist/assets/processing.worker-Bb8W0EHQ.js",
+      "sha256": "a57063e185630495e93675422f7dcc5c10fab9ed797ce6b97321e035b57e1b74"
+    }
+  ]
+}

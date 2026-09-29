@@ -4,7 +4,7 @@
  * the audio graph.
  */
 import type { Eq10Band } from "../types";
-import { biquadResponseDb } from "./analyzer";
+
 
 /** Type of biquad filter for a given band index in a 10-band EQ. */
 export function eq10BandType(index: number): BiquadFilterType {
@@ -30,8 +30,17 @@ export function eq10Response(
     gainDb: b.gainDb,
     q: i === 0 || i === 9 ? Math.max(0.4, b.q * 0.7) : b.q,
   }));
-  for (let i = 0; i < freqHzs.length; i++) {
-    out[i] = biquadResponseDb(ctx, filters, freqHzs[i]);
+  const magnitude = new Float32Array(freqHzs.length);
+  const phase = new Float32Array(freqHzs.length);
+  for (const band of filters) {
+    const filter = ctx.createBiquadFilter();
+    filter.type = band.type;
+    filter.frequency.value = band.freqHz;
+    filter.gain.value = band.gainDb;
+    filter.Q.value = band.q;
+    filter.getFrequencyResponse(freqHzs as Float32Array<ArrayBuffer>, magnitude, phase);
+    for (let i = 0; i < out.length; i++) out[i] += 20 * Math.log10(Math.max(1e-6, magnitude[i]));
+    filter.disconnect();
   }
   return out;
 }

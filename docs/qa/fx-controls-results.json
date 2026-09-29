@@ -1,0 +1,2722 @@
+{
+  "measuredAt": "2026-09-28T17:00:00.103Z",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "sampleRate": 48000,
+    "inputDuration": 0.72,
+    "renderDuration": 1.6
+  },
+  "stimulus": {
+    "seed": "0x173fa802",
+    "frequencies": [
+      31,
+      50,
+      60,
+      63,
+      100,
+      120,
+      125,
+      250,
+      500,
+      1000,
+      2000,
+      4000,
+      6800,
+      8000,
+      12000,
+      16000
+    ],
+    "description": "Deterministic distinct L/R multitone plus seeded noise; alternating quiet, loud, release and silence phases"
+  },
+  "effectCount": 21,
+  "parameterRows": 135,
+  "comparisonCount": 163,
+  "coverage": [
+    {
+      "effect": "gain",
+      "control": "gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -18,
+          "to": 6,
+          "maxAbsoluteDifference": 15.025479316711426,
+          "rmsDifference": 1.1830453452322378,
+          "relativeRmsDifference": 14.848932327677966,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "lowGainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 6.9488829374313354,
+          "rmsDifference": 0.9097614093981836,
+          "relativeRmsDifference": 1.431782843520188,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "lowFreqHz",
+      "condition": "Corresponding shelf/peak gain is nonzero (frequency is neutral at 0 dB)",
+      "comparisons": [
+        {
+          "from": 60,
+          "to": 350,
+          "maxAbsoluteDifference": 3.1766607761383057,
+          "rmsDifference": 0.3674657158892514,
+          "relativeRmsDifference": 0.43771527317529635,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "midGainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 5.518241792917252,
+          "rmsDifference": 0.5561815117625483,
+          "relativeRmsDifference": 0.5934561722388064,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "midFreqHz",
+      "condition": "Corresponding shelf/peak gain is nonzero (frequency is neutral at 0 dB)",
+      "comparisons": [
+        {
+          "from": 350,
+          "to": 2800,
+          "maxAbsoluteDifference": 2.2813262939453125,
+          "rmsDifference": 0.22056455794901747,
+          "relativeRmsDifference": 0.23677402717866816,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "highGainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 10.057281970977783,
+          "rmsDifference": 0.678915720557247,
+          "relativeRmsDifference": 0.8552005436567183,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "highFreqHz",
+      "condition": "Corresponding shelf/peak gain is nonzero (frequency is neutral at 0 dB)",
+      "comparisons": [
+        {
+          "from": 3000,
+          "to": 12000,
+          "maxAbsoluteDifference": 3.6205731630325317,
+          "rmsDifference": 0.2900724598812756,
+          "relativeRmsDifference": 0.2818178723068312,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.0.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 2.973698139190674,
+          "rmsDifference": 0.4125085492085609,
+          "relativeRmsDifference": 0.5971818586001362,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.1.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 5.8023558259010315,
+          "rmsDifference": 0.7133668775097884,
+          "relativeRmsDifference": 1.130125624933606,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.2.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.7198474407196045,
+          "rmsDifference": 0.6662962711296322,
+          "relativeRmsDifference": 1.0443706524634357,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.3.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.6395449340343475,
+          "rmsDifference": 0.5263053429005877,
+          "relativeRmsDifference": 0.8019060581687666,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.4.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.61844539642334,
+          "rmsDifference": 0.5943104357685727,
+          "relativeRmsDifference": 0.9249308183124829,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.5.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 3.6998082399368286,
+          "rmsDifference": 0.48604131132056677,
+          "relativeRmsDifference": 0.8239258441605412,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.6.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.5901594161987305,
+          "rmsDifference": 0.5935135270852712,
+          "relativeRmsDifference": 0.9221036770330545,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.7.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.847402572631836,
+          "rmsDifference": 0.5211629463233876,
+          "relativeRmsDifference": 0.7897082770954951,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.8.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 6.231055736541748,
+          "rmsDifference": 0.5841068386321603,
+          "relativeRmsDifference": 0.8879843445807515,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bands.9.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 5.204621315002441,
+          "rmsDifference": 0.37026602946627557,
+          "relativeRmsDifference": 0.5328285635391337,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.0.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 5.243760377168655,
+          "rmsDifference": 0.7294798096964468,
+          "relativeRmsDifference": 0.9205487773653919,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.0.freqHz",
+      "condition": "Static parametric band's gain is +6 dB",
+      "comparisons": [
+        {
+          "from": 80,
+          "to": 650,
+          "maxAbsoluteDifference": 3.305176466703415,
+          "rmsDifference": 0.36636850729058845,
+          "relativeRmsDifference": 0.3703928391364385,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.1.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 4.6096460819244385,
+          "rmsDifference": 0.5253062439130614,
+          "relativeRmsDifference": 0.5941083305384625,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.1.freqHz",
+      "condition": "Static parametric band's gain is +6 dB",
+      "comparisons": [
+        {
+          "from": 1080,
+          "to": 2150,
+          "maxAbsoluteDifference": 2.317213088274002,
+          "rmsDifference": 0.31824551523465716,
+          "relativeRmsDifference": 0.3112564270619465,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.2.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 5.198514461517334,
+          "rmsDifference": 0.5128277108722392,
+          "relativeRmsDifference": 0.5749720578844314,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.2.freqHz",
+      "condition": "Static parametric band's gain is +6 dB",
+      "comparisons": [
+        {
+          "from": 2080,
+          "to": 3650,
+          "maxAbsoluteDifference": 1.9026477336883545,
+          "rmsDifference": 0.21870061813744676,
+          "relativeRmsDifference": 0.21707018069816894,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.3.gainDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -9,
+          "to": 9,
+          "maxAbsoluteDifference": 6.267742872238159,
+          "rmsDifference": 0.6444454660768535,
+          "relativeRmsDifference": 0.7641465976939454,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bands.3.freqHz",
+      "condition": "Static parametric band's gain is +6 dB",
+      "comparisons": [
+        {
+          "from": 3080,
+          "to": 5150,
+          "maxAbsoluteDifference": 1.9481353387236595,
+          "rmsDifference": 0.23892039588949793,
+          "relativeRmsDifference": 0.2441910761153721,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -40,
+          "to": -6,
+          "maxAbsoluteDifference": 1.7003720998764038,
+          "rmsDifference": 0.1442001908707697,
+          "relativeRmsDifference": 1.857570517636856,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "ratio",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1,
+          "to": 12,
+          "maxAbsoluteDifference": 7.048157513141632,
+          "rmsDifference": 0.518718224975729,
+          "relativeRmsDifference": 0.8594784886869667,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "attackSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.001,
+          "to": 0.1,
+          "maxAbsoluteDifference": 11.22536027431488,
+          "rmsDifference": 0.5421840064896816,
+          "relativeRmsDifference": 4.657989922386476,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "releaseSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.02,
+          "to": 0.8,
+          "maxAbsoluteDifference": 2.1017574071884155,
+          "rmsDifference": 0.0506519981203928,
+          "relativeRmsDifference": 0.33815099586037706,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "kneeDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 40,
+          "maxAbsoluteDifference": 2.5777512788772583,
+          "rmsDifference": 0.22284466717798176,
+          "relativeRmsDifference": 2.0752683559590186,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "makeupDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 12,
+          "maxAbsoluteDifference": 4.974361777305603,
+          "rmsDifference": 0.3805221076837599,
+          "relativeRmsDifference": 2.98107171363391,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "crossoversHz.0",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 60,
+          "to": 600,
+          "maxAbsoluteDifference": 0.7442057132720947,
+          "rmsDifference": 0.07499369609904293,
+          "relativeRmsDifference": 0.789314303153787,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "crossoversHz.1",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 900,
+          "to": 9000,
+          "maxAbsoluteDifference": 0.6932521462440491,
+          "rmsDifference": 0.05691162275290911,
+          "relativeRmsDifference": 0.5635534859435422,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.0.thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -50,
+          "to": -6,
+          "maxAbsoluteDifference": 1.1029568240046501,
+          "rmsDifference": 0.18250294285524588,
+          "relativeRmsDifference": 2.0185451634050806,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.0.ratio",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1,
+          "to": 12,
+          "maxAbsoluteDifference": 2.8520736694335938,
+          "rmsDifference": 0.37424355676142507,
+          "relativeRmsDifference": 0.9112824636160568,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.0.attackSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.001,
+          "to": 0.1,
+          "maxAbsoluteDifference": 6.909730512648821,
+          "rmsDifference": 0.6014779778777747,
+          "relativeRmsDifference": 5.935723379086606,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.0.makeupDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -6,
+          "to": 12,
+          "maxAbsoluteDifference": 1.9593189060688019,
+          "rmsDifference": 0.32778569353555487,
+          "relativeRmsDifference": 3.6991299289474067,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.1.thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -50,
+          "to": -6,
+          "maxAbsoluteDifference": 1.2705271244049072,
+          "rmsDifference": 0.1216638584217245,
+          "relativeRmsDifference": 1.180640610613715,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.1.ratio",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1,
+          "to": 12,
+          "maxAbsoluteDifference": 3.8920536041259766,
+          "rmsDifference": 0.3270664127015912,
+          "relativeRmsDifference": 0.958224074989708,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.1.attackSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.001,
+          "to": 0.1,
+          "maxAbsoluteDifference": 11.534806728363037,
+          "rmsDifference": 0.5239186267778831,
+          "relativeRmsDifference": 5.032687412177322,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.1.makeupDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -6,
+          "to": 12,
+          "maxAbsoluteDifference": 3.360990732908249,
+          "rmsDifference": 0.3005695425267006,
+          "relativeRmsDifference": 2.8799962519551445,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.2.thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -50,
+          "to": -6,
+          "maxAbsoluteDifference": 1.1843751668930054,
+          "rmsDifference": 0.12116168352010763,
+          "relativeRmsDifference": 1.2596679025455164,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.2.ratio",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1,
+          "to": 12,
+          "maxAbsoluteDifference": 3.433980643749237,
+          "rmsDifference": 0.32183093986170763,
+          "relativeRmsDifference": 0.8978329289302407,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.2.attackSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.001,
+          "to": 0.1,
+          "maxAbsoluteDifference": 13.278520226478577,
+          "rmsDifference": 0.5165517469353185,
+          "relativeRmsDifference": 5.019002125349485,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bands.2.makeupDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -6,
+          "to": 12,
+          "maxAbsoluteDifference": 3.020794928073883,
+          "rmsDifference": 0.25867225149640355,
+          "relativeRmsDifference": 2.733323487259447,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "focusFreqHz",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 3000,
+          "to": 12000,
+          "maxAbsoluteDifference": 0.47081926465034485,
+          "rmsDifference": 0.043488276189484434,
+          "relativeRmsDifference": 0.3183285747553487,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -50,
+          "to": -6,
+          "maxAbsoluteDifference": 3.793855369091034,
+          "rmsDifference": 0.34454413379927684,
+          "relativeRmsDifference": 5.5043862177673955,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "rangeDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1,
+          "to": 18,
+          "maxAbsoluteDifference": 0.7143809497356415,
+          "rmsDifference": 0.06481387598427737,
+          "relativeRmsDifference": 0.5045964819015645,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "highFrequencyDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -12,
+          "to": 6,
+          "maxAbsoluteDifference": 0.7805278599262238,
+          "rmsDifference": 0.0737609795220384,
+          "relativeRmsDifference": 0.5260834195463657,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "limiter",
+      "control": "ceilingDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -6,
+          "to": 0,
+          "maxAbsoluteDifference": 0.9766152501106262,
+          "rmsDifference": 0.08681628873694473,
+          "relativeRmsDifference": 1.3813734326196747,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "limiter",
+      "control": "releaseSec",
+      "condition": "Loud bursts exceed the peak-compressor threshold, followed by quiet signal",
+      "comparisons": [
+        {
+          "from": 0.005,
+          "to": 0.5,
+          "maxAbsoluteDifference": 1.605021893978119,
+          "rmsDifference": 0.0478498380636019,
+          "relativeRmsDifference": 0.3922104470570352,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "driveDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 18,
+          "maxAbsoluteDifference": 0.3459589257836342,
+          "rmsDifference": 0.08416380386998473,
+          "relativeRmsDifference": 0.5633206337442177,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "ceilingDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -6,
+          "to": 0,
+          "maxAbsoluteDifference": 0.24940639734268188,
+          "rmsDifference": 0.0975202870639926,
+          "relativeRmsDifference": 0.9952624277154793,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "mode",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "soft",
+          "to": "hard",
+          "maxAbsoluteDifference": 0.4456254541873932,
+          "rmsDifference": 0.16519053075503745,
+          "relativeRmsDifference": 0.9480424343060223,
+          "finite": true
+        },
+        {
+          "from": "soft",
+          "to": "warm",
+          "maxAbsoluteDifference": 0.029708385467529297,
+          "rmsDifference": 0.010990099154670897,
+          "relativeRmsDifference": 0.06307310902287315,
+          "finite": true
+        },
+        {
+          "from": "hard",
+          "to": "warm",
+          "maxAbsoluteDifference": 0.4159170687198639,
+          "rmsDifference": 0.15424373704521865,
+          "relativeRmsDifference": 0.4574439997263939,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "oversampling",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "none",
+          "to": "2x",
+          "maxAbsoluteDifference": 1.132096379995346,
+          "rmsDifference": 0.2419661791101379,
+          "relativeRmsDifference": 1.3886643769156048,
+          "finite": true
+        },
+        {
+          "from": "none",
+          "to": "4x",
+          "maxAbsoluteDifference": 1.1189455091953278,
+          "rmsDifference": 0.2105898130461453,
+          "relativeRmsDifference": 1.2085927570290194,
+          "finite": true
+        },
+        {
+          "from": "2x",
+          "to": "4x",
+          "maxAbsoluteDifference": 1.2941274642944336,
+          "rmsDifference": 0.21269934613557118,
+          "relativeRmsDifference": 1.2534511282466299,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "saturation",
+      "control": "driveDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 24,
+          "maxAbsoluteDifference": 1.0834540575742722,
+          "rmsDifference": 0.2336390817962129,
+          "relativeRmsDifference": 0.9375211830771835,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "saturation",
+      "control": "mode",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "tanh",
+          "to": "soft",
+          "maxAbsoluteDifference": 0.43227481842041016,
+          "rmsDifference": 0.08228197430481776,
+          "relativeRmsDifference": 0.22741734828671553,
+          "finite": true
+        },
+        {
+          "from": "tanh",
+          "to": "hard",
+          "maxAbsoluteDifference": 0.2231082320213318,
+          "rmsDifference": 0.014041430434683142,
+          "relativeRmsDifference": 0.03880880232380438,
+          "finite": true
+        },
+        {
+          "from": "tanh",
+          "to": "tube",
+          "maxAbsoluteDifference": 0.06945323944091797,
+          "rmsDifference": 0.011272651827784884,
+          "relativeRmsDifference": 0.031156235718618773,
+          "finite": true
+        },
+        {
+          "from": "tanh",
+          "to": "tape",
+          "maxAbsoluteDifference": 0.3552201986312866,
+          "rmsDifference": 0.04909466627802029,
+          "relativeRmsDifference": 0.13569167383620834,
+          "finite": true
+        },
+        {
+          "from": "soft",
+          "to": "hard",
+          "maxAbsoluteDifference": 0.5793159008026123,
+          "rmsDifference": 0.0907772418507196,
+          "relativeRmsDifference": 0.32295941919918797,
+          "finite": true
+        },
+        {
+          "from": "soft",
+          "to": "tube",
+          "maxAbsoluteDifference": 0.44021105766296387,
+          "rmsDifference": 0.08462828715941828,
+          "relativeRmsDifference": 0.3010832000577154,
+          "finite": true
+        },
+        {
+          "from": "soft",
+          "to": "tape",
+          "maxAbsoluteDifference": 0.15538465976715088,
+          "rmsDifference": 0.03729058669252713,
+          "relativeRmsDifference": 0.13266922385260885,
+          "finite": true
+        },
+        {
+          "from": "hard",
+          "to": "tube",
+          "maxAbsoluteDifference": 0.1787482500076294,
+          "rmsDifference": 0.015176397422577467,
+          "relativeRmsDifference": 0.0412291601443198,
+          "finite": true
+        },
+        {
+          "from": "hard",
+          "to": "tape",
+          "maxAbsoluteDifference": 0.5308923721313477,
+          "rmsDifference": 0.05986628408284826,
+          "relativeRmsDifference": 0.16263652993332747,
+          "finite": true
+        },
+        {
+          "from": "tube",
+          "to": "tape",
+          "maxAbsoluteDifference": 0.36708885431289673,
+          "rmsDifference": 0.053200625408582475,
+          "relativeRmsDifference": 0.1462196381406547,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "driveDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 18,
+          "maxAbsoluteDifference": 1.0716950595378876,
+          "rmsDifference": 0.1637338118082232,
+          "relativeRmsDifference": 0.5595777285614505,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "frequencyHz",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1500,
+          "to": 12000,
+          "maxAbsoluteDifference": 2.800414204597473,
+          "rmsDifference": 0.4925140458463436,
+          "relativeRmsDifference": 1.2642061225403138,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "mode",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "tube",
+          "to": "tape",
+          "maxAbsoluteDifference": 0.4523540735244751,
+          "rmsDifference": 0.06416678711363111,
+          "relativeRmsDifference": 0.162850332251966,
+          "finite": true
+        },
+        {
+          "from": "tube",
+          "to": "softClip",
+          "maxAbsoluteDifference": 0.5423886775970459,
+          "rmsDifference": 0.09716644333666244,
+          "relativeRmsDifference": 0.24660090200707369,
+          "finite": true
+        },
+        {
+          "from": "tape",
+          "to": "softClip",
+          "maxAbsoluteDifference": 0.19173502922058105,
+          "rmsDifference": 0.03832928654035426,
+          "relativeRmsDifference": 0.11388403340932451,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "tone",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "warm",
+          "to": "bright",
+          "maxAbsoluteDifference": 0.1926746368408203,
+          "rmsDifference": 0.034933976359909025,
+          "relativeRmsDifference": 0.08429340478091145,
+          "finite": true
+        },
+        {
+          "from": "warm",
+          "to": "gritty",
+          "maxAbsoluteDifference": 0.5741544961929321,
+          "rmsDifference": 0.11084543970488754,
+          "relativeRmsDifference": 0.2674628110152683,
+          "finite": true
+        },
+        {
+          "from": "bright",
+          "to": "gritty",
+          "maxAbsoluteDifference": 0.6801199913024902,
+          "rmsDifference": 0.13424799197985213,
+          "relativeRmsDifference": 0.34071099834502877,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "widener",
+      "control": "width",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 2,
+          "maxAbsoluteDifference": 8.779449462890625,
+          "rmsDifference": 0.8702381269422439,
+          "relativeRmsDifference": 1.8937001624009642,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "width",
+      "condition": "Mono check disabled; input contains stereo side signal",
+      "comparisons": [
+        {
+          "from": 0.2,
+          "to": 1.8,
+          "maxAbsoluteDifference": 5.416439056396484,
+          "rmsDifference": 0.5668879706835346,
+          "relativeRmsDifference": 1.2191794040859638,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "bassMonoFreqHz",
+      "condition": "Safe bass enabled; input contains bass side signal",
+      "comparisons": [
+        {
+          "from": 60,
+          "to": 300,
+          "maxAbsoluteDifference": 3.290209472179413,
+          "rmsDifference": 0.4604429627118418,
+          "relativeRmsDifference": 0.5861205530800564,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "monoCheck",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 5.077861070632935,
+          "rmsDifference": 0.5314577486489414,
+          "relativeRmsDifference": 0.7564303202759156,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "safeBassMono",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 3.1310853958129883,
+          "rmsDifference": 0.5714041982394418,
+          "relativeRmsDifference": 0.715839772179251,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "transientShaper",
+      "control": "attack",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -0.7,
+          "to": 0.8,
+          "maxAbsoluteDifference": 7.940584301948547,
+          "rmsDifference": 0.7625295155759485,
+          "relativeRmsDifference": 1.071801900579787,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "transientShaper",
+      "control": "sustain",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -0.7,
+          "to": 0.8,
+          "maxAbsoluteDifference": 7.2355546951293945,
+          "rmsDifference": 0.7185843705316247,
+          "relativeRmsDifference": 1.0869603386402436,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "transientShaper",
+      "control": "mode",
+      "condition": "At least one tonal band amount is nonzero",
+      "comparisons": [
+        {
+          "from": "soft",
+          "to": "hard",
+          "maxAbsoluteDifference": 1.608931541442871,
+          "rmsDifference": 0.1358152080810767,
+          "relativeRmsDifference": 0.15592823153054922,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "noiseGate",
+      "control": "thresholdDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -70,
+          "to": -12,
+          "maxAbsoluteDifference": 0.15879602916538715,
+          "rmsDifference": 0.024816329821442003,
+          "relativeRmsDifference": 0.07725574672649636,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "noiseGate",
+      "control": "rangeDb",
+      "condition": "Quiet samples around/below threshold exercise the sample-expander transfer curve",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 80,
+          "maxAbsoluteDifference": 0.020009173545986414,
+          "rmsDifference": 0.004542242970016781,
+          "relativeRmsDifference": 0.014140443246421247,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "mode",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": "noise",
+          "to": "hum",
+          "maxAbsoluteDifference": 4.3891366720199585,
+          "rmsDifference": 0.48515038701023044,
+          "relativeRmsDifference": 0.8931763582402152,
+          "finite": true
+        },
+        {
+          "from": "noise",
+          "to": "harshness",
+          "maxAbsoluteDifference": 5.003581404685974,
+          "rmsDifference": 0.5246928366947927,
+          "relativeRmsDifference": 0.9659751895939446,
+          "finite": true
+        },
+        {
+          "from": "hum",
+          "to": "harshness",
+          "maxAbsoluteDifference": 1.2334773391485214,
+          "rmsDifference": 0.1278134796302388,
+          "relativeRmsDifference": 0.20544024215724693,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "amount",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.1,
+          "to": 1,
+          "maxAbsoluteDifference": 5.362098217010498,
+          "rmsDifference": 0.6160801492774306,
+          "relativeRmsDifference": 0.9910122687918335,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "humFreqHz",
+      "condition": "Hum mode active; source includes 50/60/100/120 Hz",
+      "comparisons": [
+        {
+          "from": 50,
+          "to": 60,
+          "maxAbsoluteDifference": 0.9047671556472778,
+          "rmsDifference": 0.1477620842814655,
+          "relativeRmsDifference": 0.237504514111217,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "amount",
+      "condition": "Cleanup amount in hum mode; source includes relevant frequencies",
+      "comparisons": [
+        {
+          "from": 0.1,
+          "to": 1,
+          "maxAbsoluteDifference": 0.4487312436103821,
+          "rmsDifference": 0.0924501652808225,
+          "relativeRmsDifference": 0.1468016141367128,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "amount",
+      "condition": "Cleanup amount in harshness mode; source includes relevant frequencies",
+      "comparisons": [
+        {
+          "from": 0.1,
+          "to": 1,
+          "maxAbsoluteDifference": 1.3749041557312012,
+          "rmsDifference": 0.13755633739569648,
+          "relativeRmsDifference": 0.21749961176734778,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "trimDb",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": -12,
+          "to": 12,
+          "maxAbsoluteDifference": 27.94791865348816,
+          "rmsDifference": 2.2366892054002725,
+          "relativeRmsDifference": 14.848932404098822,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "highPassHz",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 20,
+          "to": 1000,
+          "maxAbsoluteDifference": 8.341990947723389,
+          "rmsDifference": 0.8185041610142519,
+          "relativeRmsDifference": 0.8713260045328495,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "lowPassHz",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 1000,
+          "to": 20000,
+          "maxAbsoluteDifference": 8.253820896148682,
+          "rmsDifference": 0.7199854406463141,
+          "relativeRmsDifference": 1.1113499187843234,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "channelMode",
+      "condition": "Mono override disabled; L and R are different",
+      "comparisons": [
+        {
+          "from": "stereo",
+          "to": "mono",
+          "maxAbsoluteDifference": 5.014233589172363,
+          "rmsDifference": 0.5478048222203717,
+          "relativeRmsDifference": 0.6467186977382783,
+          "finite": true
+        },
+        {
+          "from": "stereo",
+          "to": "left",
+          "maxAbsoluteDifference": 10.02846622467041,
+          "rmsDifference": 0.7747130091174276,
+          "relativeRmsDifference": 0.9145983533817343,
+          "finite": true
+        },
+        {
+          "from": "stereo",
+          "to": "right",
+          "maxAbsoluteDifference": 10.02846622467041,
+          "rmsDifference": 0.7747130091174276,
+          "relativeRmsDifference": 0.9145983533817343,
+          "finite": true
+        },
+        {
+          "from": "mono",
+          "to": "left",
+          "maxAbsoluteDifference": 5.014232635498047,
+          "rmsDifference": 0.5478048225851737,
+          "relativeRmsDifference": 0.8479014601529317,
+          "finite": true
+        },
+        {
+          "from": "mono",
+          "to": "right",
+          "maxAbsoluteDifference": 5.014233589172363,
+          "rmsDifference": 0.5478048218555625,
+          "relativeRmsDifference": 0.8479014590236272,
+          "finite": true
+        },
+        {
+          "from": "left",
+          "to": "right",
+          "maxAbsoluteDifference": 10.02846622467041,
+          "rmsDifference": 1.0956096444407317,
+          "relativeRmsDifference": 1.128125923667951,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "phaseInvert",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 21.168214797973633,
+          "rmsDifference": 1.69410540977451,
+          "relativeRmsDifference": 2,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "mono",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 5.014233589172363,
+          "rmsDifference": 0.5478048222203717,
+          "relativeRmsDifference": 0.6467186977382783,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "reverb",
+      "control": "decaySec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.1,
+          "to": 0.8,
+          "maxAbsoluteDifference": 0.9568856284022331,
+          "rmsDifference": 0.13105656822065823,
+          "relativeRmsDifference": 2.3333135328056374,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "reverb",
+      "control": "preDelayMs",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 100,
+          "maxAbsoluteDifference": 1.0385894970968366,
+          "rmsDifference": 0.1375041869497757,
+          "relativeRmsDifference": 1.5248679351332577,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "delay",
+      "control": "timeSec",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0.05,
+          "to": 0.2,
+          "maxAbsoluteDifference": 8.30736930668354,
+          "rmsDifference": 0.945976324476225,
+          "relativeRmsDifference": 1.420349476516821,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "delay",
+      "control": "feedback",
+      "condition": "Non-silent seeded stereo multitone/noise bursts; effect active and wet=1",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 0.8,
+          "maxAbsoluteDifference": 9.49478391930461,
+          "rmsDifference": 0.9548364047982647,
+          "relativeRmsDifference": 1.5087691094693054,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "speed",
+      "control": "rate",
+      "condition": "Resampling changes both source playback time and pitch",
+      "comparisons": [
+        {
+          "from": 0.5,
+          "to": 1,
+          "maxAbsoluteDifference": 8.037724494934082,
+          "rmsDifference": 1.0008540036325981,
+          "relativeRmsDifference": 1.1547274746496357,
+          "finite": true
+        },
+        {
+          "from": 0.5,
+          "to": 2,
+          "maxAbsoluteDifference": 8.210320711135864,
+          "rmsDifference": 0.965380918018976,
+          "relativeRmsDifference": 1.1138006797125342,
+          "finite": true
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "maxAbsoluteDifference": 8.037724494934082,
+          "rmsDifference": 0.7307221185760336,
+          "relativeRmsDifference": 1.1546385899963856,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "pitch",
+      "control": "semitones",
+      "condition": "Detune uses resampling; there is no independent time stretch",
+      "comparisons": [
+        {
+          "from": -12,
+          "to": 0,
+          "maxAbsoluteDifference": 8.037724494934082,
+          "rmsDifference": 1.0008540036325981,
+          "relativeRmsDifference": 1.1547274746496357,
+          "finite": true
+        },
+        {
+          "from": -12,
+          "to": 12,
+          "maxAbsoluteDifference": 8.210320711135864,
+          "rmsDifference": 0.965380918018976,
+          "relativeRmsDifference": 1.1138006797125342,
+          "finite": true
+        },
+        {
+          "from": 0,
+          "to": 12,
+          "maxAbsoluteDifference": 8.037724494934082,
+          "rmsDifference": 0.7307221185760336,
+          "relativeRmsDifference": 1.1546385899963856,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "gain",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 5.185832262039185,
+          "rmsDifference": 0.40831141933241805,
+          "relativeRmsDifference": 1.8183828704037568,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "gain",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 5.185832262039185,
+          "rmsDifference": 0.40831141933241805,
+          "relativeRmsDifference": 0.6451866031045155,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.919578194618225,
+          "rmsDifference": 0.7760810086369139,
+          "relativeRmsDifference": 0.9162133644803274,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "utility",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.919578194618225,
+          "rmsDifference": 0.7760810086369139,
+          "relativeRmsDifference": 1.2263116973682493,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 5.548983931541443,
+          "rmsDifference": 0.5096289132568989,
+          "relativeRmsDifference": 0.5374395306668069,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq3",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 5.548983931541443,
+          "rmsDifference": 0.5096289132568989,
+          "relativeRmsDifference": 0.8052817820418934,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 1.351089596748352,
+          "rmsDifference": 0.1909374689592166,
+          "relativeRmsDifference": 0.26730631359467,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 1.351089596748352,
+          "rmsDifference": 0.1909374689592166,
+          "relativeRmsDifference": 0.30170671494954704,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.516232013702393,
+          "rmsDifference": 0.6165945396396187,
+          "relativeRmsDifference": 4.830501313286082,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "compressor",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.516232013702393,
+          "rmsDifference": 0.6165945396396187,
+          "relativeRmsDifference": 0.9743017649942399,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "limiter",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.644992709159851,
+          "rmsDifference": 0.6175458092946164,
+          "relativeRmsDifference": 6.342641036249389,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "limiter",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.644992709159851,
+          "rmsDifference": 0.6175458092946164,
+          "relativeRmsDifference": 0.975804898162418,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 5.412501811981201,
+          "rmsDifference": 0.48254828999301486,
+          "relativeRmsDifference": 0.48189267369504013,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 5.412501811981201,
+          "rmsDifference": 0.48254828999301486,
+          "relativeRmsDifference": 0.7624907786402619,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.765574149787426,
+          "rmsDifference": 0.6291162714311103,
+          "relativeRmsDifference": 4.718901641271506,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "deEsser",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.765574149787426,
+          "rmsDifference": 0.6291162714311103,
+          "relativeRmsDifference": 0.9940877744395477,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "noiseGate",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.037724494934082,
+          "rmsDifference": 0.3712344481111115,
+          "relativeRmsDifference": 1.1559081612166395,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "noiseGate",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.037724494934082,
+          "rmsDifference": 0.3712344481111115,
+          "relativeRmsDifference": 0.5866000341694855,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 4.462927460670471,
+          "rmsDifference": 0.5015158569670796,
+          "relativeRmsDifference": 0.9233056774128287,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "repair",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 4.462927460670471,
+          "rmsDifference": 0.5015158569670796,
+          "relativeRmsDifference": 0.7924620689979073,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.119388997554779,
+          "rmsDifference": 0.6285799227051303,
+          "relativeRmsDifference": 1.595287123822661,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "exciter",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.119388997554779,
+          "rmsDifference": 0.6285799227051303,
+          "relativeRmsDifference": 0.9932402717829719,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.75957864522934,
+          "rmsDifference": 0.619194463893534,
+          "relativeRmsDifference": 5.872512063948205,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.75957864522934,
+          "rmsDifference": 0.619194463893534,
+          "relativeRmsDifference": 0.9784099927299601,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 3.2728211879730225,
+          "rmsDifference": 0.4659971228821047,
+          "relativeRmsDifference": 0.6632594101891789,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "stereoImager",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 3.2728211879730225,
+          "rmsDifference": 0.4659971228821047,
+          "relativeRmsDifference": 0.7363377229575122,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.592099040746689,
+          "rmsDifference": 0.5063454631296109,
+          "relativeRmsDifference": 2.90595945948656,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "softClipper",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.592099040746689,
+          "rmsDifference": 0.5063454631296109,
+          "relativeRmsDifference": 0.8000934920901903,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "saturation",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 7.063121438026428,
+          "rmsDifference": 0.6233354221749462,
+          "relativeRmsDifference": 1.7228231335220459,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "saturation",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 7.063121438026428,
+          "rmsDifference": 0.6233354221749462,
+          "relativeRmsDifference": 0.9849532601495927,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "widener",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 2.6338348388671875,
+          "rmsDifference": 0.26107145066791243,
+          "relativeRmsDifference": 0.3129665414351388,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "widener",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 2.6338348388671875,
+          "rmsDifference": 0.26107145066791243,
+          "relativeRmsDifference": 0.41252777769329746,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "transientShaper",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 4.100493907928467,
+          "rmsDifference": 0.34646891329566837,
+          "relativeRmsDifference": 0.39777787549575633,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "transientShaper",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 4.100493907928467,
+          "rmsDifference": 0.34646891329566837,
+          "relativeRmsDifference": 0.5474671798697778,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "reverb",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 8.335090696811676,
+          "rmsDifference": 0.6407066381979046,
+          "relativeRmsDifference": 6.989648604979605,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "reverb",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 8.335090696811676,
+          "rmsDifference": 0.6407066381979046,
+          "relativeRmsDifference": 1.012402102692306,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "delay",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 8.790222942829132,
+          "rmsDifference": 0.9551049381107691,
+          "relativeRmsDifference": 1.3631451345189622,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "delay",
+      "control": "wet",
+      "condition": "Non-neutral setup makes dry/wet mix observable",
+      "comparisons": [
+        {
+          "from": 0,
+          "to": 1,
+          "maxAbsoluteDifference": 8.790222942829132,
+          "rmsDifference": 0.9551049381107691,
+          "relativeRmsDifference": 1.5091934279857908,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "speed",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 10.431030988693237,
+          "rmsDifference": 0.8121774940171459,
+          "relativeRmsDifference": 1.5758654504671072,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "pitch",
+      "control": "bypass",
+      "condition": "Non-neutral setup makes bypass observable; dry path must preserve samples",
+      "comparisons": [
+        {
+          "from": false,
+          "to": true,
+          "maxAbsoluteDifference": 9.3695650100708,
+          "rmsDifference": 0.8073634038300916,
+          "relativeRmsDifference": 1.625217403724812,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Vocal Clear",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Vocal Clear",
+          "maxAbsoluteDifference": 2.6706369519233704,
+          "rmsDifference": 0.26273174317345294,
+          "relativeRmsDifference": 0.4151512617084175,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Clean Low End",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Clean Low End",
+          "maxAbsoluteDifference": 2.665074408054352,
+          "rmsDifference": 0.3071508741248459,
+          "relativeRmsDifference": 0.48533942411210484,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Punch",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Punch",
+          "maxAbsoluteDifference": 1.6804413795471191,
+          "rmsDifference": 0.16551627589530737,
+          "relativeRmsDifference": 0.2615378330050164,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Bright",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Bright",
+          "maxAbsoluteDifference": 2.015439033508301,
+          "rmsDifference": 0.1689674974793018,
+          "relativeRmsDifference": 0.2669912242767543,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Warm Mix",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Warm Mix",
+          "maxAbsoluteDifference": 1.0478891730308533,
+          "rmsDifference": 0.10522808870809244,
+          "relativeRmsDifference": 0.16627444124819385,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Dark",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Dark",
+          "maxAbsoluteDifference": 2.782145998906344,
+          "rmsDifference": 0.24167949015745546,
+          "relativeRmsDifference": 0.3818858888386223,
+          "finite": true
+        }
+      ]
+    },
+    {
+      "effect": "eq10",
+      "control": "preset:Bass Control",
+      "condition": "Preset applies its displayed ten-band gains; Reset returns to Flat",
+      "comparisons": [
+        {
+          "from": "Flat",
+          "to": "Bass Control",
+          "maxAbsoluteDifference": 1.6577802300453186,
+          "rmsDifference": 0.2060380778240578,
+          "relativeRmsDifference": 0.32556769477285447,
+          "finite": true
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "effect": "eq3",
+      "control": "midFreqHz",
+      "setup": {
+        "lowGainDb": 0,
+        "midGainDb": 0,
+        "highGainDb": 0
+      },
+      "from": 300,
+      "to": 3000,
+      "maxAbsoluteDifference": 2.783354102795673e-16,
+      "rmsDifference": 5.1335936853013885e-18,
+      "relativeRmsDifference": 8.11176399855204e-18,
+      "finite": true
+    },
+    {
+      "effect": "stereoImager",
+      "control": "width",
+      "setup": {
+        "monoCheck": true
+      },
+      "from": 0.2,
+      "to": 1.8,
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "stereoImager",
+      "control": "bassMonoFreqHz",
+      "setup": {
+        "safeBassMono": false
+      },
+      "from": 60,
+      "to": 300,
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "stereoImager",
+      "control": "safeBassMono",
+      "setup": {
+        "monoCheck": true
+      },
+      "from": false,
+      "to": true,
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "utility",
+      "control": "channelMode",
+      "setup": {
+        "mono": true
+      },
+      "from": "left",
+      "to": "right",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "transientShaper",
+      "control": "mode",
+      "setup": {
+        "attack": 0,
+        "sustain": 0
+      },
+      "from": "soft",
+      "to": "hard",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "exciter",
+      "control": "mode",
+      "setup": {},
+      "from": "tube",
+      "to": "harmonic",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    }
+  ],
+  "dryIntegrity": [
+    {
+      "effect": "gain",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "gain",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "utility",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "utility",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "eq3",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "eq3",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "eq10",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "eq10",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "compressor",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "compressor",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "limiter",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "limiter",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "dynamicEq",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "deEsser",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "deEsser",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "noiseGate",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "noiseGate",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "repair",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "repair",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "exciter",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "exciter",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "multibandCompressor",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "stereoImager",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "stereoImager",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "softClipper",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "softClipper",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "saturation",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "saturation",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "widener",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "widener",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "transientShaper",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "transientShaper",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "reverb",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "reverb",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "delay",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "delay",
+      "control": "wet=0",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "speed",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    },
+    {
+      "effect": "pitch",
+      "control": "bypass",
+      "maxAbsoluteDifference": 0,
+      "rmsDifference": 0,
+      "relativeRmsDifference": 0,
+      "finite": true
+    }
+  ],
+  "sourceHashes": {
+    "src/audio/effects.ts": "3d80274c5ea9ff3f7ae0254ac7058d3954b6572395b184fd46934c33dcc0df6b",
+    "src/audio/playback.ts": "fe564c3457aa893055d87ebc33c8b4d50d7d8b04ee4384a3482141169124b146",
+    "src/state/effects.ts": "e7897219b5ff27edda0e6ec28b5d2c8368216565eb2b2051891939b9acd1b055",
+    "src/components/EffectRack.tsx": "ab23bb716e5a2ecdf520a9234654d9d39d541d0a7cee83215b04bb7592d41c3f",
+    "src/components/EQPanel.tsx": "b76c3978aec563ba67abb0e1446a434cfc8ae80bdb2a3f5d0c226a7af8667f7c",
+    "tests/ui/fx-controls.spec.ts": "a4fa8a3726ea31098ab42ce6b9565ae62a739f23636712b4977db54590e3327c"
+  },
+  "methodology": "Direct real OfflineAudioContext sensitivity of each exposed DSP field, all pairs of enum values, wet/bypass and EQ preset. Separate null comparisons check that bypass and wet=0 reproduce dry samples. UI callbacks mapped by source inspection; this is not a click test for every control or acoustic quality validation.",
+  "exclusions": [
+    "Removed Dynamic EQ detector/envelope/sidechain controls, Gate attack/release/hold, stereoImager mode, and hidden master Speed/Pitch are not available UI promises.",
+    "Exciter legacy harmonic is an exact tube alias; current UI displays only the three distinct modes.",
+    "Gain-neutral EQ frequency, bypass/wet=0, absent side signal, Mono override and zero tonal amounts are physically inactive conditions, recorded separately.",
+    "Offline renders validate actual DSP parameters; physical device output, live smoothing and quality judgments are outside this sweep."
+  ],
+  "acceptance": {
+    "finite": true,
+    "maxAbsoluteDifferenceGreaterThan": 0.000001,
+    "rmsDifferenceGreaterThan": 1e-8,
+    "dryIntegrityMaxAbsoluteDifferenceLessThan": 1e-7
+  }
+}
