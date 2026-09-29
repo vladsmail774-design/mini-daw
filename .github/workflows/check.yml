@@ -1,0 +1,52 @@
+name: Verify editor and Windows package
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  editor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editor-results
+          path: test-results/
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run portable
+      - run: npm run test:desktop
+      - run: npm run release:manifest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-portable
+          path: |
+            release/2.1.0/*.exe
+            release/2.1.0/manifest.json
+            release/2.1.0/SHA256SUMS.txt
+            test-results/desktop-smoke.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Windows-smoke-evidence
+          path: |
+            test-results/desktop-smoke.json
+            test-results/portable-smoke-*/*.png

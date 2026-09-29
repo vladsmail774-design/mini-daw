@@ -1,0 +1,913 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\slava\\Documents\\Новая папка (2)\\mini-daw\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--output=test-results/regression"
+    ],
+    "configFile": "C:\\Users\\slava\\Documents\\Новая папка (2)\\mini-daw\\playwright.config.ts",
+    "rootDir": "C:/Users/slava/Documents/Новая папка (2)/mini-daw/tests/ui",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/slava/Documents/Новая папка (2)/mini-daw/test-results/regression",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/slava/Documents/Новая папка (2)/mini-daw/tests/ui",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "audio.spec.ts",
+      "file": "audio.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real offline resampling, pitch, source seek, clip gain and stereo signals",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 420,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:36.931Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-b236c12a7ce2773da914",
+          "file": "audio.spec.ts",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "offline sample-zero bypass null, deterministic IR, explicit tail, mute/solo and stems",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 327,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:37.647Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-e98e18ad06a21275b2e4",
+          "file": "audio.spec.ts",
+          "line": 65,
+          "column": 1
+        },
+        {
+          "title": "worker peaks, WAV/MP3, analysis, normalization and cancellation run in actual browser",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:37.985Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-7d1833b69eaf82fb6f71",
+          "file": "audio.spec.ts",
+          "line": 109,
+          "column": 1
+        },
+        {
+          "title": "actual audio-clock scheduler runs 100 loops without transport restart and removes edited clips",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2673,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "AUDIO_LOOP_RESULT {\"anomalies\":[],\"passes\":127,\"completedPasses\":111,\"spacingError\":4.2674197509029455e-16,\"beforePosition\":0.005666666666666487,\"deletionAdded\":0,\"remainedPlaying\":true,\"stops\":16,\"removedChain\":true,\"activeStates\":[false,true],\"beforeDisable\":0.006999999999999673,\"afterDisable\":0.08699999999999974}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:38.655Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-d99decb717ec90806045",
+          "file": "audio.spec.ts",
+          "line": 137,
+          "column": 1
+        },
+        {
+          "title": "live graph capture agrees with deterministic offline graph after sample alignment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 763,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "AUDIO_LIVE_OFFLINE_RESULT {\"maximumError\":0,\"alignmentSamples\":0,\"frames\":9600,\"captureChunks\":188,\"sampleRate\":48000}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:41.340Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-6380eea0fffebb110340",
+          "file": "audio.spec.ts",
+          "line": 178,
+          "column": 1
+        },
+        {
+          "title": "Bass Mono removes low side signal and fades shape samples with no initial gain transient",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:42.114Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-be434d1ca75757da0769",
+          "file": "audio.spec.ts",
+          "line": 219,
+          "column": 1
+        },
+        {
+          "title": "live source edits preserve transport, update offset/gain, stop deleted material, meter L/R and auto-stop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:42.436Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87be2dcdb54c25970a35-4d31323d85f71f6c861b",
+          "file": "audio.spec.ts",
+          "line": 252,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "editor.spec.ts",
+      "file": "editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "media and edits survive complete page restart; portable save retains media",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2934,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:43.050Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-d5f9b71a298043087cdc",
+          "file": "editor.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "undo track selection never leaves an orphan clip, typing and Ctrl+S do not split",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1033,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:45.994Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-41644c0eca46c804d468",
+          "file": "editor.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "one mouse drag is one undo and 100 slider changes remain one operation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1348,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:47.038Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-320ab867f6ccc6bdaec6",
+          "file": "editor.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "initial track and master meters attach to the live graph and show audio",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 866,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:48.397Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-8ed203c41b283baf92ab",
+          "file": "editor.spec.ts",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "WAV and MP3 export finish, dialog traps focus and closes with Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1627,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:49.271Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-2ce3f4a0db5b62293542",
+          "file": "editor.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "busy export stays visible on backdrop and Escape; cancellation produces no download",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1086,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:50.909Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-65b26823ebca39ad0ec2",
+          "file": "editor.spec.ts",
+          "line": 107,
+          "column": 1
+        },
+        {
+          "title": "batch import survives recovery and corrupt open preserves the current document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2232,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:52.008Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-707534ebdf68550895e1",
+          "file": "editor.spec.ts",
+          "line": 130,
+          "column": 1
+        },
+        {
+          "title": "missing media can be relinked; storage failure is visible and retains the previous copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1079,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:54.253Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-8ed07d475dcf0527f9bc",
+          "file": "editor.spec.ts",
+          "line": 150,
+          "column": 1
+        },
+        {
+          "title": "an in-flight decode cannot import old media into a new project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:55.342Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-849812b68733086e006d",
+          "file": "editor.spec.ts",
+          "line": 173,
+          "column": 1
+        },
+        {
+          "title": "30 tracks / 10 minutes remains navigable and canvas allocation is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2200,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:56.008Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2f56d7d370f0ba02e91-63beb7c52167019b645f",
+          "file": "editor.spec.ts",
+          "line": 193,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fx-controls.spec.ts",
+      "file": "fx-controls.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "every exposed FX parameter produces a measured change under an appropriate input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T16:59:58.241Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb26a9cbcf01c88b5160-a616af09d524f68b4321",
+          "file": "fx-controls.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "performance.spec.ts",
+      "file": "performance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "measure active scroll, drag, zoom and input response on 30/600 and 60/1200 ten-minute projects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13888,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T17:00:00.168Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b15d6361b2fc38288977-fa816f8c102b236f1cd3",
+          "file": "performance.spec.ts",
+          "line": 102,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "timeline.spec.ts",
+      "file": "timeline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cross-track mouse capture, left trim, Escape and blur preserve one-step history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T17:00:14.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b06e59072d3cdab898f7-d6596ee5490dcbc8be4a",
+          "file": "timeline.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "30-track navigation keeps headers fixed, anchors wheel zoom, fits and resizes overview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1595,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T17:00:15.599Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b06e59072d3cdab898f7-564b7d6f735a50a3cb73",
+          "file": "timeline.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "Ctrl selection moves as group and Shift-ruler loop cancels without history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T17:00:17.203Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b06e59072d3cdab898f7-1d5efe761dbde6440324",
+          "file": "timeline.spec.ts",
+          "line": 101,
+          "column": 1
+        },
+        {
+          "title": "Undo and Redo keep both viewport offsets while explicit track selection reveals its row",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1089,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-28T17:00:18.349Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b06e59072d3cdab898f7-c52e08ede7d2e4cd84d2",
+          "file": "timeline.spec.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-28T16:59:35.491Z",
+    "duration": 44497.215000000004,
+    "expected": 23,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

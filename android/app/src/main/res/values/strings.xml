@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mini DAW</string>
+    <string name="title_activity_main">Mini DAW</string>
+    <string name="package_name">app.mini.daw</string>
+    <string name="custom_url_scheme">app.mini.daw</string>
+</resources>

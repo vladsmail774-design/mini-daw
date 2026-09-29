@@ -1,62 +1,19 @@
+import type { ReactNode } from "react";
 import { useStore } from "../state/store";
-import type { Effect, EffectType, Track } from "../types";
-import { EFFECT_LABELS } from "../state/effects";
-import { EQPanel } from "./EQPanel";
+import type { Clip, Track } from "../types";
+import { useI18n } from "../i18n";
+import { EffectRack } from "./EffectRack";
 import { MeterPanel } from "./MeterPanel";
 
 export function Inspector() {
   const project = useStore((s) => s.project);
   const ui = useStore((s) => s.ui);
-  const resizeClip = useStore((s) => s.resizeClip);
-  const deleteClip = useStore((s) => s.deleteClip);
+  const { t } = useI18n();
 
   if (ui.inspectorMode === "clip" && ui.selectedClipId) {
     const clip = project.clips.find((c) => c.id === ui.selectedClipId);
     if (!clip) return <EmptyInspector />;
-    const asset = project.assets[clip.assetId];
-    return (
-      <div className="w-80 bg-bg-1 border-l border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
-        <div className="p-3 border-b border-bg-3 flex-shrink-0">
-          <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold mb-1">
-            Clip Inspector
-          </div>
-          <div className="text-xs font-bold truncate text-accent">{asset?.name ?? "-"}</div>
-        </div>
-        <div className="p-3 overflow-y-auto flex-1 no-scrollbar">
-          <Field label="Start (s)">
-            <NumberInput
-              value={clip.start}
-              step={0.01}
-              onChange={(v) => resizeClip(clip.id, v, clip.duration, clip.offset)}
-            />
-          </Field>
-          <Field label="Duration (s)">
-            <NumberInput
-              value={clip.duration}
-              step={0.01}
-              onChange={(v) => resizeClip(clip.id, clip.start, Math.max(0.05, v), clip.offset)}
-            />
-          </Field>
-          <Field label="Asset offset (s)">
-            <NumberInput
-              value={clip.offset}
-              step={0.01}
-              onChange={(v) =>
-                resizeClip(clip.id, clip.start, clip.duration, Math.max(0, v))
-              }
-            />
-          </Field>
-          <div className="mt-6">
-            <button
-              className="w-full py-2 rounded bg-red-900/20 hover:bg-red-900/40 text-red-400 text-[10px] uppercase tracking-widest font-bold border border-red-900/30 transition-colors"
-              onClick={() => deleteClip(clip.id)}
-            >
-              Delete clip
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <ClipInspector clip={clip} assetName={project.assets[clip.assetId]?.name ?? "-"} />;
   }
 
   if (ui.inspectorMode === "master") {
@@ -65,613 +22,245 @@ export function Inspector() {
 
   const track = project.tracks.find((t) => t.id === ui.selectedTrackId);
   if (!track) return <EmptyInspector />;
-  return <TrackInspector track={track} />;
+  return <TrackInspector track={track} title={t("inspector.track.title")} />;
 }
 
-function EmptyInspector() {
+function ClipInspector({ clip, assetName }: { clip: Clip; assetName: string }) {
+  const resizeClip = useStore((s) => s.resizeClip);
+  const updateClip = useStore((s) => s.updateClip);
+  const deleteClip = useStore((s) => s.deleteClip);
+  const { t, locale } = useI18n();
+  const text = (ru: string, en: string) => locale === "ru" ? ru : en;
+
   return (
-    <div className="w-80 bg-bg-1 border-l border-bg-3 p-4 text-[10px] text-gray-500 uppercase tracking-widest italic flex items-center justify-center text-center flex-shrink-0">
-      Select a track or clip to view properties
-    </div>
+    <Panel>
+      <PanelHeader eyebrow={t("inspector.clip.title")} title={assetName} />
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 custom-scrollbar">
+        <Field label={text("Название клипа", "Clip name")}><input aria-label={text("Название клипа", "Clip name")} className="w-full" value={clip.name ?? assetName} onChange={event => updateClip(clip.id, { name: event.target.value })} /></Field>
+        <Field label={t("inspector.clip.start")}>
+          <NumberInput value={clip.start} step={0.01} onChange={(v) => resizeClip(clip.id, v, clip.duration, clip.offset)} />
+        </Field>
+        <Field label={t("inspector.clip.duration")}>
+          <NumberInput value={clip.duration} step={0.01} onChange={(v) => resizeClip(clip.id, clip.start, Math.max(0.05, v), clip.offset)} />
+        </Field>
+        <Field label={t("inspector.clip.offset")}>
+          <NumberInput value={clip.offset} step={0.01} onChange={(v) => resizeClip(clip.id, clip.start, clip.duration, Math.max(0, v))} />
+        </Field>
+        <Field label={text("Уровень клипа", "Clip gain")}>
+          <NumberInput value={clip.gainDb ?? 0} step={0.1} onChange={(gainDb) => updateClip(clip.id, { gainDb })} suffix="dB" />
+        </Field>
+        <Field label={text("Нарастание, с", "Fade in, s")}><NumberInput value={clip.fadeInSec ?? 0} step={0.01} onChange={fadeInSec => updateClip(clip.id, { fadeInSec })} /></Field>
+        <Field label={text("Затухание, с", "Fade out, s")}><NumberInput value={clip.fadeOutSec ?? 0} step={0.01} onChange={fadeOutSec => updateClip(clip.id, { fadeOutSec })} /></Field>
+        <button onClick={() => useStore.getState().crossfadeSelected()}>{text("Кроссфейд выделенных пересечений", "Crossfade selected overlaps")}</button>
+        <p className="mt-2 text-gray-400">{text("Пересекающиеся клипы суммируются. Кроссфейд создаёт взаимные линейные фейды.", "Overlapping clips mix. Crossfade creates complementary linear fades.")}</p>
+        <button className="mt-4 w-full rounded-md border border-red-900/40 bg-red-950/40 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] text-red-300 transition-colors hover:bg-red-950/60" onClick={() => deleteClip(clip.id)}>
+          {t("inspector.clip.delete")}
+        </button>
+      </div>
+    </Panel>
   );
 }
 
-function TrackInspector({ track }: { track: Track }) {
+function TrackInspector({ track, title }: { track: Track; title: string }) {
+  const updateTrack = useStore((s) => s.updateTrack);
   const updateEffect = useStore((s) => s.updateEffect);
   const removeEffect = useStore((s) => s.removeEffect);
   const reorderEffect = useStore((s) => s.reorderEffect);
-  const updateTrack = useStore((s) => s.updateTrack);
+  const addEffect = useStore((s) => s.addEffect);
+  const clearTrackEffects = useStore((s) => s.clearTrackEffects);
+  const copyTrackChain = useStore((s) => s.copyTrackChain);
+  const pasteTrackChain = useStore((s) => s.pasteTrackChain);
+  const clipboardAvailable = useStore((s) => Boolean(s.fxClipboard));
+  const { locale } = useI18n();
+  const text = (ru: string, en: string) => locale === "ru" ? ru : en;
 
   return (
-    <div className="w-80 bg-bg-1 border-l border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
-      <div className="p-3 border-b border-bg-3 flex-shrink-0">
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold mb-1">
-          Track Inspector
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-4 rounded-sm" style={{ background: track.color }} />
-          <input
-            className="bg-bg-2 px-2 py-1 rounded text-xs font-bold flex-1 min-w-0 border border-bg-3 outline-none focus:ring-1 ring-accent/30"
-            value={track.name}
-            onChange={(e) => updateTrack(track.id, { name: e.target.value })}
+    <Panel>
+      <PanelHeader eyebrow={title} title={track.name} color={track.color} />
+      <div className="border-b border-bg-3/80 p-3">
+        <MeterPanel trackId={track.id} compact showSpectrum />
+        <div className="mt-3 rounded-md border border-bg-3/70 bg-bg-0/40 p-2">
+          <div className="mb-2 flex items-center gap-1.5">
+            <button
+              className={`h-7 w-7 rounded-md text-[10px] font-bold ${
+                track.mute ? "bg-red-500 text-black" : "bg-bg-2 text-gray-400 hover:bg-bg-3"
+              }`}
+              onClick={() => updateTrack(track.id, { mute: !track.mute })}
+            >
+              M
+            </button>
+            <button
+              className={`h-7 w-7 rounded-md text-[10px] font-bold ${
+                track.solo ? "bg-yellow-400 text-black" : "bg-bg-2 text-gray-400 hover:bg-bg-3"
+              }`}
+              onClick={() => updateTrack(track.id, { solo: !track.solo })}
+            >
+              S
+            </button>
+            <input
+              className="min-w-0 flex-1 rounded border border-bg-3 bg-bg-2 px-2 py-1 text-xs font-bold outline-none"
+              value={track.name}
+              onChange={(e) => updateTrack(track.id, { name: e.target.value })}
+            />
+          </div>
+          <MiniTrackSlider
+            label={text("Громкость", "Volume")}
+            value={track.volumeDb}
+            min={-60}
+            max={6}
+            step={0.5}
+            suffix="dB"
+            onChange={(volumeDb) => updateTrack(track.id, { volumeDb })}
+          />
+          <MiniTrackSlider
+            label={text("Панорама", "Pan")}
+            value={track.pan}
+            min={-1}
+            max={1}
+            step={0.01}
+            suffix=""
+            onChange={(pan) => updateTrack(track.id, { pan })}
           />
         </div>
       </div>
-
-      <div className="p-3 overflow-y-auto flex-1 no-scrollbar">
-        <Field label="Volume / Pan" compact>
-          <div className="flex gap-2 items-center">
-            <input
-              type="range"
-              min={-60}
-              max={6}
-              step={0.5}
-              value={track.volumeDb}
-              onChange={(e) => updateTrack(track.id, { volumeDb: Number(e.target.value) })}
-              className="flex-1 h-1"
-            />
-            <input
-              type="range"
-              min={-1}
-              max={1}
-              step={0.01}
-              value={track.pan}
-              onChange={(e) => updateTrack(track.id, { pan: Number(e.target.value) })}
-              className="flex-1 h-1"
-            />
-          </div>
-        </Field>
-
-        <div className="mt-2 mb-3">
-          <div className="text-[10px] text-gray-500 mb-0.5">Track meter</div>
-          <MeterPanel trackId={track.id} />
-        </div>
-
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-3 flex items-center justify-between font-bold">
-          <span>Effects chain</span>
-          <span className="text-[9px] normal-case text-gray-600 font-normal italic">
-            drag to reorder
-          </span>
-        </div>
-        <EffectsList
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 custom-scrollbar">
+        <EffectRack
+          title={text("Эффекты дорожки", "Track effects")}
           effects={track.effects}
-          onUpdate={(id, patch) => updateEffect(track.id, id, patch)}
-          onRemove={(id) => removeEffect(track.id, id)}
+          clipboardAvailable={clipboardAvailable}
+          onAdd={(type) => addEffect(track.id, type)}
+          onUpdate={(effectId, patch) => updateEffect(track.id, effectId, patch)}
+          onRemove={(effectId) => removeEffect(track.id, effectId)}
           onReorder={(from, to) => reorderEffect(track.id, from, to)}
+          onCopy={() => copyTrackChain(track.id)}
+          onPaste={() => pasteTrackChain(track.id)}
+          onClear={() => clearTrackEffects(track.id)}
+          bypassed={track.effectsBypassed}
+          onSetBypassAll={(bypass) => useStore.getState().setTrackEffectsBypassed(track.id, bypass)}
         />
       </div>
-    </div>
+    </Panel>
   );
 }
 
 function MasterInspector() {
-  const masterEffects = useStore((s) => s.project.masterEffects);
+  const project = useStore((s) => s.project);
+  const addMasterEffect = useStore((s) => s.addMasterEffect);
   const updateMasterEffect = useStore((s) => s.updateMasterEffect);
   const removeMasterEffect = useStore((s) => s.removeMasterEffect);
   const reorderMasterEffect = useStore((s) => s.reorderMasterEffect);
-  const addMasterEffect = useStore((s) => s.addMasterEffect);
-  const masterVolumeDb = useStore((s) => s.project.masterVolumeDb);
-  const setMasterVolumeDb = useStore((s) => s.setMasterVolumeDb);
-
-  const effectTypes: EffectType[] = [
-    "eq10",
-    "compressor",
-    "limiter",
-    "saturation",
-    "widener",
-    "reverb",
-  ];
+  const clearMasterEffects = useStore((s) => s.clearMasterEffects);
+  const copyMasterChain = useStore((s) => s.copyMasterChain);
+  const pasteMasterChain = useStore((s) => s.pasteMasterChain);
+  const clipboardAvailable = useStore((s) => Boolean(s.fxClipboard));
+  const { locale } = useI18n();
+  const text = (ru: string, en: string) => locale === "ru" ? ru : en;
 
   return (
-    <div className="w-80 bg-bg-1 border-l border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
-      <div className="p-3 border-b border-bg-3 flex-shrink-0">
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold mb-1">
-          Master Bus
-        </div>
-        <Field label="Master volume" compact>
-          <SliderWithValue
-            min={-60}
-            max={6}
-            step={0.5}
-            value={masterVolumeDb}
-            onChange={setMasterVolumeDb}
-            format={(v) => `${v.toFixed(1)}dB`}
-          />
-        </Field>
+    <Panel>
+      <PanelHeader eyebrow={text("Мастер", "Master")} title={text("Выход микса", "Mix output")} color="#4ade80" />
+      <div className="border-b border-bg-3/80 p-3">
+        <MeterPanel compact showSpectrum />
+
       </div>
-
-      <div className="p-3 overflow-y-auto flex-1 no-scrollbar">
-        <div className="mb-3">
-          <div className="text-[10px] text-gray-500 mb-0.5">Master meter + spectrum</div>
-          <div className="h-12">
-            <MeterPanel showSpectrum />
-          </div>
-        </div>
-
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-3 flex items-center justify-between font-bold">
-          <span>Master chain</span>
-          <span className="text-[9px] normal-case text-gray-600 font-normal italic">
-            drag to reorder
-          </span>
-        </div>
-        <EffectsList
-          effects={masterEffects}
-          onUpdate={(id, patch) => updateMasterEffect(id, patch)}
-          onRemove={(id) => removeMasterEffect(id)}
-          onReorder={(from, to) => reorderMasterEffect(from, to)}
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 custom-scrollbar">
+        <EffectRack
+          title={text("Эффекты мастера", "Master effects")}
+          master
+          effects={project.masterEffects}
+          clipboardAvailable={clipboardAvailable}
+          onAdd={addMasterEffect}
+          onUpdate={updateMasterEffect}
+          onRemove={removeMasterEffect}
+          onReorder={reorderMasterEffect}
+          onCopy={copyMasterChain}
+          onPaste={pasteMasterChain}
+          onClear={clearMasterEffects}
+          bypassed={project.masterEffectsBypassed}
+          onSetBypassAll={(bypass) => useStore.getState().setMasterEffectsBypassed(bypass)}
         />
-
-        <div className="mt-3 pt-3 border-t border-bg-3">
-          <div className="text-[10px] text-gray-500 mb-1">Add to master</div>
-          <div className="grid grid-cols-2 gap-1">
-            {effectTypes.map((t) => (
-              <button
-                key={t}
-                className="text-[10px] px-2 py-1.5 rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors text-left truncate"
-                onClick={() => addMasterEffect(t)}
-                title={`Add ${EFFECT_LABELS[t]} to master`}
-              >
-                + {EFFECT_LABELS[t]}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
-    </div>
+    </Panel>
   );
 }
 
-function EffectsList({
-  effects,
-  onUpdate,
-  onRemove,
-  onReorder,
-}: {
-  effects: Effect[];
-  onUpdate: (id: string, patch: Partial<Effect>) => void;
-  onRemove: (id: string) => void;
-  onReorder: (from: number, to: number) => void;
-}) {
-  if (effects.length === 0) {
-    return (
-      <div className="text-[10px] text-gray-600 italic p-4 bg-bg-0/50 rounded border border-dashed border-bg-3 text-center">
-        No effects added.
-      </div>
-    );
-  }
+function EmptyInspector() {
+  const { t } = useI18n();
   return (
-    <div className="flex flex-col gap-2">
-      {effects.map((e, i) => (
-        <div
-          key={e.id}
-          className="bg-bg-2 rounded p-2 border border-bg-3"
-          draggable
-          onDragStart={(ev) => {
-            ev.dataTransfer.setData("text/plain", String(i));
-            ev.dataTransfer.effectAllowed = "move";
-          }}
-          onDragOver={(ev) => {
-            ev.preventDefault();
-            ev.dataTransfer.dropEffect = "move";
-          }}
-          onDrop={(ev) => {
-            ev.preventDefault();
-            const from = Number(ev.dataTransfer.getData("text/plain"));
-            if (Number.isFinite(from) && from !== i) onReorder(from, i);
-          }}
-        >
-          <div className="flex items-center justify-between mb-2 pb-1 border-b border-bg-3/50">
-            <div className="text-[10px] flex items-center gap-2 font-bold">
-              <span className="text-gray-600">#{i + 1}</span>
-              {EFFECT_LABELS[e.type]}
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors ${
-                  e.bypass ? "bg-red-500 text-black" : "bg-bg-3 text-gray-400 hover:bg-bg-3/80"
-                }`}
-                onClick={() => onUpdate(e.id, { bypass: !e.bypass } as Partial<Effect>)}
-                title="Bypass"
-              >
-                BYP
-              </button>
-              <button
-                className="text-[9px] px-1.5 py-0.5 rounded bg-bg-3 text-gray-500 hover:text-red-400 transition-colors"
-                onClick={() => onRemove(e.id)}
-              >
-                x
-              </button>
-            </div>
-          </div>
-          <EffectControls effect={e} onChange={(patch) => onUpdate(e.id, patch)} />
-          {e.type !== "speed" && e.type !== "pitch" && (
-            <div className="mt-2 pt-2 border-t border-bg-3/30">
-              <Field label="Dry / Wet" compact>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={e.wet}
-                  onChange={(ev) =>
-                    onUpdate(e.id, { wet: Number(ev.target.value) } as Partial<Effect>)
-                  }
-                  className="w-full h-1"
-                />
-              </Field>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+    <Panel>
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-8 py-16 text-center">
+        <div className="h-11 w-11 rounded-full border-2 border-dashed border-bg-3/70 bg-bg-2/50" aria-hidden />
+        <p className="max-w-[14rem] text-xs leading-relaxed text-gray-500">{t("inspector.empty")}</p>
+      </div>
+    </Panel>
   );
 }
 
-function EffectControls({
-  effect,
-  onChange,
+function Panel({ children }: { children: ReactNode }) {
+  return <div className="flex w-80 max-[1100px]:w-72 flex-shrink-0 flex-col overflow-hidden border-l border-bg-3 bg-bg-1">{children}</div>;
+}
+
+function PanelHeader({
+  eyebrow,
+  title,
+  color,
 }: {
-  effect: Effect;
-  onChange: (patch: Partial<Effect>) => void;
+  eyebrow: string;
+  title: string;
+  color?: string;
 }) {
-  switch (effect.type) {
-    case "gain":
-      return (
-        <Field label="Gain (dB)" compact>
-          <SliderWithValue
-            min={-60}
-            max={12}
-            step={0.5}
-            value={effect.gainDb}
-            onChange={(v) => onChange({ gainDb: v })}
-            format={(v) => `${v.toFixed(1)}dB`}
-          />
-        </Field>
-      );
-    case "eq3":
-      return (
-        <div className="flex flex-col gap-2">
-          <Field label={`Low ${effect.lowGainDb.toFixed(1)}dB @ ${effect.lowFreqHz}Hz`} compact>
-            <div className="flex gap-2">
-              <input
-                type="range"
-                min={-18}
-                max={18}
-                step={0.5}
-                value={effect.lowGainDb}
-                onChange={(e) => onChange({ lowGainDb: Number(e.target.value) })}
-                className="flex-1 h-1"
-              />
-              <input
-                type="number"
-                value={effect.lowFreqHz}
-                onChange={(e) => onChange({ lowFreqHz: Math.max(20, Number(e.target.value)) })}
-                className="w-12 bg-bg-3 px-1 rounded text-[9px] outline-none"
-              />
-            </div>
-          </Field>
-          <Field label={`Mid ${effect.midGainDb.toFixed(1)}dB @ ${effect.midFreqHz}Hz`} compact>
-            <div className="flex gap-2">
-              <input
-                type="range"
-                min={-18}
-                max={18}
-                step={0.5}
-                value={effect.midGainDb}
-                onChange={(e) => onChange({ midGainDb: Number(e.target.value) })}
-                className="flex-1 h-1"
-              />
-              <input
-                type="number"
-                value={effect.midFreqHz}
-                onChange={(e) => onChange({ midFreqHz: Math.max(50, Number(e.target.value)) })}
-                className="w-12 bg-bg-3 px-1 rounded text-[9px] outline-none"
-              />
-            </div>
-          </Field>
-          <Field label={`High ${effect.highGainDb.toFixed(1)}dB @ ${effect.highFreqHz}Hz`} compact>
-            <div className="flex gap-2">
-              <input
-                type="range"
-                min={-18}
-                max={18}
-                step={0.5}
-                value={effect.highGainDb}
-                onChange={(e) => onChange({ highGainDb: Number(e.target.value) })}
-                className="flex-1 h-1"
-              />
-              <input
-                type="number"
-                value={effect.highFreqHz}
-                onChange={(e) => onChange({ highFreqHz: Math.max(500, Number(e.target.value)) })}
-                className="w-12 bg-bg-3 px-1 rounded text-[9px] outline-none"
-              />
-            </div>
-          </Field>
-        </div>
-      );
-    case "eq10":
-      return <EQPanel effect={effect} onChange={(patch) => onChange(patch)} />;
-    case "compressor":
-      return (
-        <div>
-          <Field label={`Threshold ${effect.thresholdDb.toFixed(1)}dB`} compact>
-            <input
-              type="range"
-              min={-60}
-              max={0}
-              step={0.5}
-              value={effect.thresholdDb}
-              onChange={(e) => onChange({ thresholdDb: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Ratio ${effect.ratio.toFixed(1)}:1`} compact>
-            <input
-              type="range"
-              min={1}
-              max={20}
-              step={0.1}
-              value={effect.ratio}
-              onChange={(e) => onChange({ ratio: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Attack ${(effect.attackSec * 1000).toFixed(1)}ms`} compact>
-            <input
-              type="range"
-              min={0.001}
-              max={0.5}
-              step={0.001}
-              value={effect.attackSec}
-              onChange={(e) => onChange({ attackSec: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Release ${(effect.releaseSec * 1000).toFixed(0)}ms`} compact>
-            <input
-              type="range"
-              min={0.01}
-              max={1}
-              step={0.01}
-              value={effect.releaseSec}
-              onChange={(e) => onChange({ releaseSec: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Knee ${effect.kneeDb.toFixed(0)}dB`} compact>
-            <input
-              type="range"
-              min={0}
-              max={40}
-              step={1}
-              value={effect.kneeDb}
-              onChange={(e) => onChange({ kneeDb: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Makeup ${effect.makeupDb.toFixed(1)}dB`} compact>
-            <input
-              type="range"
-              min={0}
-              max={18}
-              step={0.5}
-              value={effect.makeupDb}
-              onChange={(e) => onChange({ makeupDb: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-        </div>
-      );
-    case "limiter":
-      return (
-        <div>
-          <Field label={`Ceiling ${effect.ceilingDb.toFixed(2)}dB`} compact>
-            <input
-              type="range"
-              min={-6}
-              max={0}
-              step={0.05}
-              value={effect.ceilingDb}
-              onChange={(e) => onChange({ ceilingDb: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label={`Release ${(effect.releaseSec * 1000).toFixed(0)}ms`} compact>
-            <input
-              type="range"
-              min={0.005}
-              max={0.5}
-              step={0.005}
-              value={effect.releaseSec}
-              onChange={(e) => onChange({ releaseSec: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-        </div>
-      );
-    case "saturation":
-      return (
-        <div>
-          <Field label={`Drive ${effect.driveDb.toFixed(1)}dB`} compact>
-            <input
-              type="range"
-              min={0}
-              max={30}
-              step={0.5}
-              value={effect.driveDb}
-              onChange={(e) => onChange({ driveDb: Number(e.target.value) })}
-              className="w-full"
-            />
-          </Field>
-          <Field label="Mode" compact>
-            <select
-              className="w-full bg-bg-3 px-1 py-0.5 rounded text-xs"
-              value={effect.mode}
-              onChange={(e) => onChange({ mode: e.target.value as "tanh" | "soft" | "hard" })}
-            >
-              <option value="tanh">Tanh (smooth)</option>
-              <option value="soft">Soft clip</option>
-              <option value="hard">Hard clip</option>
-            </select>
-          </Field>
-        </div>
-      );
-    case "widener":
-      return (
-        <Field label={`Width ${effect.width.toFixed(2)}`} compact>
-          <input
-            type="range"
-            min={0}
-            max={2}
-            step={0.01}
-            value={effect.width}
-            onChange={(e) => onChange({ width: Number(e.target.value) })}
-            className="w-full"
-          />
-        </Field>
-      );
-    case "reverb":
-      return (
-        <div className="flex flex-col gap-2">
-          <Field label={`Decay ${effect.decaySec.toFixed(2)}s`} compact>
-            <input
-              type="range"
-              min={0.1}
-              max={6}
-              step={0.1}
-              value={effect.decaySec}
-              onChange={(e) => onChange({ decaySec: Number(e.target.value) })}
-              className="w-full h-1"
-            />
-          </Field>
-          <Field label={`Pre-delay ${effect.preDelayMs.toFixed(0)}ms`} compact>
-            <input
-              type="range"
-              min={0}
-              max={200}
-              step={1}
-              value={effect.preDelayMs}
-              onChange={(e) => onChange({ preDelayMs: Number(e.target.value) })}
-              className="w-full h-1"
-            />
-          </Field>
-        </div>
-      );
-    case "delay":
-      return (
-        <div className="flex flex-col gap-2">
-          <Field label={`Time ${(effect.timeSec * 1000).toFixed(0)}ms`} compact>
-            <input
-              type="range"
-              min={0.01}
-              max={2}
-              step={0.01}
-              value={effect.timeSec}
-              onChange={(e) => onChange({ timeSec: Number(e.target.value) })}
-              className="w-full h-1"
-            />
-          </Field>
-          <Field label={`Feedback ${(effect.feedback * 100).toFixed(0)}%`} compact>
-            <input
-              type="range"
-              min={0}
-              max={0.95}
-              step={0.01}
-              value={effect.feedback}
-              onChange={(e) => onChange({ feedback: Number(e.target.value) })}
-              className="w-full h-1"
-            />
-          </Field>
-        </div>
-      );
-    case "speed":
-      return (
-        <Field label={`Rate ${effect.rate.toFixed(2)}x`} compact>
-          <input
-            type="range"
-            min={0.25}
-            max={4}
-            step={0.01}
-            value={effect.rate}
-            onChange={(e) => onChange({ rate: Number(e.target.value) })}
-            className="w-full h-1"
-          />
-        </Field>
-      );
-    case "pitch":
-      return (
-        <Field label={`${effect.semitones > 0 ? "+" : ""}${effect.semitones} semitones`} compact>
-          <input
-            type="range"
-            min={-12}
-            max={12}
-            step={1}
-            value={effect.semitones}
-            onChange={(e) => onChange({ semitones: Number(e.target.value) })}
-            className="w-full h-1"
-          />
-        </Field>
-      );
-  }
+  return (
+    <div className="flex-shrink-0 border-b border-bg-3 bg-bg-0/35 p-3">
+      <div className="panel-section-title mb-1.5">{eyebrow}</div>
+      <div className="flex min-w-0 items-center gap-2">
+        {color && <span className="h-5 w-1.5 flex-shrink-0 rounded-sm shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]" style={{ background: color }} />}
+        <div className="min-w-0 truncate text-xs font-semibold">{title}</div>
+      </div>
+    </div>
+  );
 }
 
 function Field({
   label,
-  compact,
   children,
 }: {
   label: string;
-  compact?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <div className={compact ? "mb-1" : "mb-3"}>
-      <div className="text-[9px] text-gray-500 mb-1 uppercase tracking-tighter font-bold">
-        {label}
-      </div>
+    <div className="mb-3">
+      <div className="mb-1 truncate text-[9px] font-bold uppercase tracking-normal text-gray-500">{label}</div>
       {children}
     </div>
   );
 }
 
-function NumberInput({
+function MiniTrackSlider({
+  label,
   value,
-  step = 0.1,
-  onChange,
-}: {
-  value: number;
-  step?: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <input
-      type="number"
-      step={step}
-      value={Number.isFinite(value) ? Number(value.toFixed(4)) : 0}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full bg-bg-2 px-2 py-1.5 rounded text-xs border border-bg-3 outline-none focus:ring-1 ring-accent/30"
-    />
-  );
-}
-
-function SliderWithValue({
   min,
   max,
   step,
-  value,
+  suffix,
   onChange,
-  format,
 }: {
+  label: string;
+  value: number;
   min: number;
   max: number;
   step: number;
-  value: number;
-  onChange: (v: number) => void;
-  format: (v: number) => string;
+  suffix: string;
+  onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <label className="mt-2 block">
+      <div className="mb-1 flex items-center justify-between gap-2 text-[9px] uppercase text-gray-500">
+        <span>{label}</span>
+        <span className="font-mono tabular-nums">
+          {value.toFixed(suffix ? 1 : 2)}
+          {suffix}
+        </span>
+      </div>
       <input
         type="range"
         min={min}
@@ -679,11 +268,33 @@ function SliderWithValue({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="flex-1 h-1"
+        className="h-1 w-full"
       />
-      <span className="tabular-nums text-[9px] text-gray-400 w-12 text-right font-mono">
-        {format(value)}
-      </span>
+    </label>
+  );
+}
+
+function NumberInput({
+  value,
+  step = 0.1,
+  suffix,
+  onChange,
+}: {
+  value: number;
+  step?: number;
+  suffix?: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="number"
+        step={step}
+        value={Number.isFinite(value) ? Number(value.toFixed(4)) : 0}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="min-w-0 flex-1 rounded border border-bg-3 bg-bg-2 px-2 py-1.5 text-xs outline-none ring-accent/30 focus:ring-1"
+      />
+      {suffix && <span className="w-8 text-right text-[10px] text-gray-500">{suffix}</span>}
     </div>
   );
 }

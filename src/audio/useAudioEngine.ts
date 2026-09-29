@@ -25,13 +25,7 @@ export function useAudioEngine() {
   // update without tearing the transport.
   useEffect(() => {
     const engine = getAudioEngine();
-    if (engine.isPlaying) {
-      engine.syncWhilePlaying(project);
-    } else {
-      for (const t of project.tracks) engine.ensureTrackChain(t);
-      engine.setMasterVolumeDb(project.masterVolumeDb);
-      engine.ensureMasterChain(project.masterEffects ?? []);
-    }
+    engine.syncWhilePlaying(project);
   }, [project]);
 
   const play = async (startPos?: number) => {

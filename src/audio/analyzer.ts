@@ -4,64 +4,72 @@
  * detection. Designed to be polled from animation frames.
  */
 
-export interface MeterReading {
-  /** Peak amplitude in last frame (0..1+ where >1 means clipping). */
-  peak: number;
-  /** Root-mean-square level (0..1). */
-  rms: number;
-  /** Whether peak crossed the clipping threshold (>= 0.99). */
-  clipping: boolean;
+export interface ChannelMeter { peak: number; rms: number; clipping: boolean }
+export interface MeterReading extends ChannelMeter {
+  left: ChannelMeter;
+  right: ChannelMeter;
+  /** -1 = opposite polarity, 0 = uncorrelated/silence, +1 = mono. */
+  correlation: number;
+  monoRms: number;
 }
 
 export interface AnalyzerWrapper {
   node: AnalyserNode;
-  /** Latest meter reading; cheap to poll once per RAF. */
   read(): MeterReading;
-  /** Latest spectrum FFT magnitudes in dB (size = fftSize/2). */
   readSpectrum(out?: Float32Array): Float32Array;
-  /** Has clipping ever been detected since last reset? */
   clippingHistory: boolean;
+  leftClipHold: boolean;
+  rightClipHold: boolean;
   resetClipping(): void;
+  dispose(): void;
+}
+
+export function stereoMeter(left: Float32Array, right: Float32Array): MeterReading {
+  let leftPeak = 0, rightPeak = 0, leftSq = 0, rightSq = 0, cross = 0, monoSq = 0;
+  const length = Math.min(left.length, right.length);
+  for (let i = 0; i < length; i++) {
+    const l = left[i], r = right[i];
+    leftPeak = Math.max(leftPeak, Math.abs(l));
+    rightPeak = Math.max(rightPeak, Math.abs(r));
+    leftSq += l * l; rightSq += r * r; cross += l * r;
+    monoSq += ((l + r) * 0.5) ** 2;
+  }
+  const leftMeter = { peak: leftPeak, rms: Math.sqrt(leftSq / Math.max(1, length)), clipping: leftPeak >= 1 };
+  const rightMeter = { peak: rightPeak, rms: Math.sqrt(rightSq / Math.max(1, length)), clipping: rightPeak >= 1 };
+  return { left: leftMeter, right: rightMeter, peak: Math.max(leftPeak, rightPeak),
+    rms: Math.sqrt((leftSq + rightSq) / Math.max(1, 2 * length)), clipping: leftMeter.clipping || rightMeter.clipping,
+    correlation: leftSq * rightSq > 1e-20 ? Math.max(-1, Math.min(1, cross / Math.sqrt(leftSq * rightSq))) : 0,
+    monoRms: Math.sqrt(monoSq / Math.max(1, length)) };
 }
 
 export function createAnalyzer(ctx: BaseAudioContext, fftSize = 2048): AnalyzerWrapper {
   const node = ctx.createAnalyser();
   node.fftSize = fftSize;
-  node.smoothingTimeConstant = 0.7;
-
-  const time = new Float32Array(node.fftSize);
-  const freq = new Float32Array(node.frequencyBinCount);
-
+  node.channelCount = 2;
+  node.channelCountMode = "explicit";
+  const split = ctx.createChannelSplitter(2);
+  const left = ctx.createAnalyser(), right = ctx.createAnalyser();
+  for (const analyser of [left, right]) { analyser.fftSize = fftSize; analyser.smoothingTimeConstant = 0.7; }
+  node.connect(split); split.connect(left, 0); split.connect(right, 1);
+  const timeL = new Float32Array(fftSize), timeR = new Float32Array(fftSize);
+  const freqL = new Float32Array(fftSize / 2), freqR = new Float32Array(fftSize / 2);
   const wrapper: AnalyzerWrapper = {
-    node,
-    clippingHistory: false,
-    read(): MeterReading {
-      node.getFloatTimeDomainData(time);
-      let peak = 0;
-      let sumSq = 0;
-      for (let i = 0; i < time.length; i++) {
-        const v = time[i];
-        const a = Math.abs(v);
-        if (a > peak) peak = a;
-        sumSq += v * v;
-      }
-      const rms = Math.sqrt(sumSq / time.length);
-      const clipping = peak >= 0.99;
-      if (clipping) wrapper.clippingHistory = true;
-      return { peak, rms, clipping };
+    node, clippingHistory: false, leftClipHold: false, rightClipHold: false,
+    read() {
+      left.getFloatTimeDomainData(timeL); right.getFloatTimeDomainData(timeR);
+      const reading = stereoMeter(timeL, timeR);
+      wrapper.leftClipHold ||= reading.left.clipping;
+      wrapper.rightClipHold ||= reading.right.clipping;
+      wrapper.clippingHistory = wrapper.leftClipHold || wrapper.rightClipHold;
+      return reading;
     },
-    readSpectrum(out?: Float32Array): Float32Array {
-      node.getFloatFrequencyData(freq);
-      if (out && out.length === freq.length) {
-        out.set(freq);
-        return out;
-      }
-      // Return a copy so callers can safely retain it.
-      return new Float32Array(freq);
+    readSpectrum(out = new Float32Array(freqL.length)) {
+      left.getFloatFrequencyData(freqL); right.getFloatFrequencyData(freqR);
+      for (let i = 0; i < out.length; i++) out[i] = Math.max(freqL[i], freqR[i]);
+      return out;
     },
-    resetClipping() {
-      wrapper.clippingHistory = false;
-    },
+    resetClipping() { wrapper.clippingHistory = wrapper.leftClipHold = wrapper.rightClipHold = false; },
+    dispose() { node.disconnect(); split.disconnect(); left.disconnect(); right.disconnect(); },
   };
   return wrapper;
 }

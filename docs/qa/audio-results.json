@@ -1,0 +1,256 @@
+{
+  "environment": {
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "platform": "win32",
+    "node": "v24.15.0",
+    "headless": true
+  },
+  "limitations": [
+    "Automated Web Audio numeric tests; no human acoustic listening or audio-interface validation.",
+    "Live/offline equality covers a deterministic gain graph with AudioWorklet PCM capture; it does not establish equality for every effect or hardware driver.",
+    "Loop test runs actual AudioContext time, over 100 completed 20 ms loops; it does not simulate a background tab or main-thread stalls longer than 300 ms.",
+    "Offline cancellation disconnects and discards native rendering; Worker encoding and analysis terminate immediately."
+  ],
+  "checks": {
+    "resampling-seek-stereo": {
+      "measuredAt": "2026-09-28T16:59:37.612Z",
+      "result": {
+        "output": [
+          {
+            "effective": 0.25,
+            "length": 8,
+            "frequency": 110,
+            "peak": 0.10047545284032822,
+            "correlation": -1,
+            "seekError": 0,
+            "tail": 0.10046994686126709
+          },
+          {
+            "effective": 1,
+            "length": 2,
+            "frequency": 440,
+            "peak": 0.10047545284032822,
+            "correlation": -1,
+            "seekError": 0,
+            "tail": 0.10047545284032822
+          },
+          {
+            "effective": 1,
+            "length": 2,
+            "frequency": 440,
+            "peak": 0.10047545284032822,
+            "correlation": -1,
+            "seekError": 0,
+            "tail": 0.10047545284032822
+          },
+          {
+            "effective": 4,
+            "length": 0.5,
+            "frequency": 1760,
+            "peak": 0.10047545284032822,
+            "correlation": -1,
+            "seekError": 0,
+            "tail": 0.10047545284032822
+          }
+        ],
+        "channelResult": {
+          "peak": 0.4000000059604645,
+          "peakDb": -7.958800044010912,
+          "rms": 0.2000000006135017,
+          "rmsDb": -13.979400060076335,
+          "leftPeak": 0.4000000059604645,
+          "rightPeak": 0,
+          "leftRms": 0.2828427133422414,
+          "rightRms": 0,
+          "correlation": 0,
+          "clippingSamples": 0,
+          "durationSec": 2
+        }
+      }
+    },
+    "bypass-null-IR-stems": {
+      "measuredAt": "2026-09-28T16:59:37.961Z",
+      "result": {
+        "bypass": [
+          {
+            "type": "gain",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "eq3",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "eq10",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "compressor",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "reverb",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "delay",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "widener",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "stereoImager",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "noiseGate",
+            "difference": 0,
+            "first": 0.5
+          },
+          {
+            "type": "utility",
+            "difference": 0,
+            "first": 0.5
+          }
+        ],
+        "deterministicError": 0,
+        "tailPeak": 0.0020728432573378086,
+        "duration": 0.5,
+        "masterPeak": 0,
+        "stemPeak": 0.5,
+        "premasterPeak": 0.5,
+        "mutedStemPeak": 0,
+        "lastSample": 0.25
+      }
+    },
+    "workers-normalization-cancel": {
+      "measuredAt": "2026-09-28T16:59:38.635Z",
+      "result": {
+        "mp3Bytes": 24768,
+        "decodedDuration": 1.032,
+        "wavBytes": 288044,
+        "analysis": {
+          "peak": 0.20000000298023224,
+          "peakDb": -13.979399957290536,
+          "rms": 0.1414213566711161,
+          "rmsDb": -16.98970001671643,
+          "leftPeak": 0.20000000298023224,
+          "rightPeak": 0.20000000298023224,
+          "leftRms": 0.1414213566711161,
+          "rightRms": 0.1414213566711161,
+          "correlation": -1,
+          "clippingSamples": 0,
+          "durationSec": 1
+        },
+        "normalizedPeak": -1.0000002900227403,
+        "lastPeak": 1,
+        "abortName": "AbortError",
+        "progress": 1
+      }
+    },
+    "100-real-time-loops": {
+      "measuredAt": "2026-09-28T16:59:41.312Z",
+      "result": {
+        "anomalies": [],
+        "passes": 127,
+        "completedPasses": 111,
+        "spacingError": 4.2674197509029455e-16,
+        "beforePosition": 0.005666666666666487,
+        "deletionAdded": 0,
+        "remainedPlaying": true,
+        "stops": 16,
+        "removedChain": true,
+        "activeStates": [
+          false,
+          true
+        ],
+        "beforeDisable": 0.006999999999999673,
+        "afterDisable": 0.08699999999999974
+      }
+    },
+    "live-offline-PCM-capture": {
+      "measuredAt": "2026-09-28T16:59:42.094Z",
+      "result": {
+        "maximumError": 0,
+        "alignmentSamples": 0,
+        "frames": 9600,
+        "captureChunks": 188,
+        "sampleRate": 48000
+      }
+    },
+    "bass-mono-fades": {
+      "measuredAt": "2026-09-28T16:59:42.402Z",
+      "result": {
+        "attenuation": [
+          0.01795493376640688,
+          1.0127899304589592
+        ],
+        "samples": [
+          0,
+          0.1250000298023224,
+          0.25,
+          0.25,
+          0.25,
+          0.1250000298023224
+        ]
+      }
+    },
+    "live-edits-stereo-meter-stop": {
+      "measuredAt": "2026-09-28T16:59:43.017Z",
+      "result": {
+        "meter": {
+          "left": {
+            "peak": 1.2000000476837158,
+            "rms": 0.8480019894051773,
+            "clipping": true
+          },
+          "right": {
+            "peak": 1.2000000476837158,
+            "rms": 0.8480019894051773,
+            "clipping": true
+          },
+          "peak": 1.2000000476837158,
+          "rms": 0.8480019894051773,
+          "clipping": true,
+          "correlation": -1,
+          "monoRms": 0
+        },
+        "before": 0.135,
+        "after": 0.135,
+        "trim": {
+          "when": 0.20500000000000002,
+          "offset": 1.1400000000000001,
+          "duration": 1.8599999999999999,
+          "rate": 1
+        },
+        "speed": {
+          "when": 0.20500000000000002,
+          "offset": 1.28,
+          "duration": 1.72,
+          "rate": 2
+        },
+        "stopCount": 3,
+        "addedAfterDeletion": 0,
+        "autoStopped": true,
+        "states": [
+          false,
+          true,
+          false,
+          true,
+          false,
+          false
+        ]
+      }
+    }
+  }
+}

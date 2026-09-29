@@ -1,0 +1,90 @@
+import type { Messages } from "./types";
+
+export const RU: Messages = {
+  "effect.dynamicEq": "Параметрический EQ (статический)",
+  "effect.noiseGate": "Сэмпловый экспандер",
+  "effect.transientShaper": "Тембровый корректор",
+  "effect.repair": "Очищающие фильтры",
+  "effect.limiter": "Пиковый компрессор",
+  "effect.multibandCompressor": "Многополосный компрессор",
+  "effect.deEsser": "ВЧ полка + компрессор",
+  "effect.softClipper": "Мягкий клиппер",
+  "effect.saturation": "Сатурация",
+  "effect.exciter": "Эксайтер",
+  "effect.stereoImager": "Стереополе",
+  "effect.utility": "Каналы и фильтры",
+  // App / shell
+  "app.title": "mini-daw",
+  "app.subtitle": "Аудио · Оффлайн · Быстро",
+
+  // Sidebar
+  "sidebar.files.title": "Файлы",
+  "sidebar.files.import": "Импорт аудио",
+  "sidebar.files.decoding": "Обработка…",
+  "sidebar.files.hint": "Перетащите файлы сюда или нажмите «Импорт аудио»",
+  "sidebar.assets.title": "Ассеты",
+  "sidebar.assets.empty": "Пока нет загруженных файлов",
+  "sidebar.assets.addToTrack": "Двойной клик — добавить на выбранную дорожку",
+  "sidebar.tracks.title": "Дорожки",
+  "sidebar.tracks.add": "Добавить дорожку",
+  "sidebar.effects.addTitle": "Добавить эффект",
+
+  // Transport
+  "transport.stop": "Стоп",
+  "transport.play": "Пуск (Пробел)",
+  "transport.pause": "Пауза (Пробел)",
+  "transport.rewind": "В начало",
+  "transport.loop": "Повтор",
+  "transport.loop.start": "старт",
+  "transport.loop.end": "конец",
+  "transport.undo": "Отменить",
+  "transport.redo": "Повторить",
+  "transport.undo.hint": "Отменить (Ctrl+Z)",
+  "transport.redo.hint": "Повторить (Ctrl+Y)",
+  "transport.master": "Мастер",
+  "transport.export.wav": "WAV",
+  "transport.export.mp3": "MP3",
+  "transport.export.mp3Unavailable": "MP3-энкодер недоступен — экспортирую WAV.",
+
+  // Timeline
+  "timeline.zoom": "Зум",
+  "timeline.help": "Ctrl+колёсико — зум · Перетаскивайте клипы · S — разрез · Del — удалить · Shift+drag по линейке — луп",
+  "timeline.track.pan": "Пан",
+
+  // Inspector
+  "inspector.empty": "Выберите дорожку в списке или клип на таймлайне — и отредактируйте параметры.",
+  "inspector.clip.title": "Клип",
+  "inspector.clip.start": "Старт (с)",
+  "inspector.clip.duration": "Длительность (с)",
+  "inspector.clip.offset": "Смещение в файле (с)",
+  "inspector.clip.delete": "Удалить клип",
+  "inspector.track.title": "Дорожка",
+  "inspector.effects.title": "Эффекты",
+  "inspector.effects.reorderHint": "Перетащите для порядка",
+  "inspector.effects.empty": "На этой дорожке нет эффектов. Добавьте эффект слева.",
+  "inspector.effects.bypass": "Обход",
+  "inspector.effects.dryWet": "Сухой / Мокрый",
+
+  // Effect names
+  "effect.eq10": "EQ 10",
+  "effect.compressor": "Компрессор",
+  "effect.widener": "Стереорасширитель",
+  "effect.gain": "Громкость",
+  "effect.eq3": "Эквалайзер (3 полосы)",
+  "effect.reverb": "Реверберация",
+  "effect.delay": "Задержка",
+  "effect.speed": "Скорость ресэмплинга",
+  "effect.pitch": "Полутона ресэмплинга",
+
+  // Effect params
+  "effectParam.gainDb": "Усиление (дБ)",
+  "effectParam.eq.low": "Низ",
+  "effectParam.eq.mid": "Середина",
+  "effectParam.eq.high": "Верх",
+  "effectParam.reverb.decay": "Затухание",
+  "effectParam.reverb.predelay": "Предзадержка",
+  "effectParam.delay.time": "Время",
+  "effectParam.delay.feedback": "Обратная связь",
+  "effectParam.speed.rate": "Скорость",
+  "effectParam.pitch.semitones": "Полутона",
+};

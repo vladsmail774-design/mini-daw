@@ -1,263 +1,103 @@
 import { useRef, useState } from "react";
-import { useStore } from "../state/store";
-import { getAudioEngine } from "../audio/AudioEngine";
-import { decodeAndAnalyze } from "../audio/waveform";
-import { uid } from "../utils/id";
-import type { AudioAsset, EffectType } from "../types";
-import { EFFECT_LABELS } from "../state/effects";
-import { applyQuickChain, QUICK_CHAINS } from "../state/quickChains";
+import { cloneEffect, useStore } from "../state/store";
+import { importAudioFiles, type AudioImportProgress } from "../audio/importAudioFiles";
+import { sourceRate } from "../audio/playback";
+import { useI18n } from "../i18n";
+import { EFFECT_LABELS, EFFECT_MENU } from "../state/effects";
+import { QUICK_CHAINS, applyQuickChainToMaster, applyQuickChainToTrack } from "../state/quickChains";
+import { getProjectEpoch, relinkMedia, reportError, useSession } from "../state/session";
+import type { AudioAsset, Effect } from "../types";
+
+interface UserPreset { name: string; effects: Effect[] }
+function readPreference<T>(key: string, fallback: T): T { try { return JSON.parse(localStorage.getItem(`mini-daw:${key}`) ?? "null") ?? fallback; } catch { return fallback; } }
+function writePreference(key: string, value: unknown) { try { localStorage.setItem(`mini-daw:${key}`, JSON.stringify(value)); } catch (error) { reportError(error); } }
 
 export function Sidebar() {
-  const project = useStore((s) => s.project);
-  const addAsset = useStore((s) => s.addAsset);
-  const addClip = useStore((s) => s.addClip);
-  const addTrack = useStore((s) => s.addTrack);
-  const addEffect = useStore((s) => s.addEffect);
-  const updateTrack = useStore((s) => s.updateTrack);
-  const ui = useStore((s) => s.ui);
-  const setSelected = useStore((s) => s.setSelected);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { project, ui, addAsset, addClip, addTrack, setSelected, addEffect, addMasterEffect } = useStore();
+  const { t, locale } = useI18n();
+  const text = (ru: string, en: string) => locale === "ru" ? ru : en;
+  const missingMedia = useSession(s => s.missingMedia);
+  const [tab, setTab] = useState<"files" | "effects" | "presets">("files");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [progress, setProgress] = useState<AudioImportProgress | null>(null);
+  const [failures, setFailures] = useState<{ file: File; reason: string }[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(() => readPreference("favorites", []));
+  const [recent, setRecent] = useState<string[]>(() => readPreference("recent-presets", []));
+  const [presets, setPresets] = useState<UserPreset[]>(() => readPreference("user-presets", []));
+  const [presetName, setPresetName] = useState("");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+  const relinkInput = useRef<HTMLInputElement>(null);
+  const relinkId = useRef<string>("");
+  const abort = useRef<AbortController | null>(null);
+  const selectedTrack = project.tracks.find(track => track.id === ui.selectedTrackId);
+  const master = ui.inspectorMode === "master";
+  const matches = (name: string) => name.toLocaleLowerCase().includes(query.toLocaleLowerCase());
   const handleFiles = async (files: FileList | File[]) => {
+    if (loading || useSession.getState().busy) return;
+    const epoch = getProjectEpoch();
     setLoading(true);
-    const engine = getAudioEngine();
-    await engine.resume();
-    for (const f of Array.from(files)) {
-      try {
-        const arr = await f.arrayBuffer();
-        const { buffer, peaks, peaksPerSecond } = await decodeAndAnalyze(engine.ctx, arr);
-        const id = uid("asset");
-        engine.registerBuffer(id, buffer);
-        const asset: AudioAsset = {
-          id,
-          name: f.name,
-          durationSec: buffer.duration,
-          sampleRate: buffer.sampleRate,
-          numChannels: buffer.numberOfChannels,
-          peaks,
-          peaksPerSecond,
-        };
-        addAsset(asset);
-      } catch (err) {
-        console.error("Failed to decode", f.name, err);
-      }
-    }
-    setLoading(false);
+    const list = Array.from(files);
+    setFailures(previous => previous.filter(failure => !list.includes(failure.file)));
+    const controller = new AbortController(); abort.current = controller;
+    try {
+      const result = await importAudioFiles(list, setProgress, controller.signal);
+      if (getProjectEpoch() !== epoch) return;
+      for (const asset of result.assets) addAsset(asset);
+      setFailures(previous => [...previous, ...result.failures.map(failure => ({ file: list.find(file => file.name === failure.fileName)!, reason: failure.reason }))]);
+    } catch (error) { reportError(error); }
+    finally { setLoading(false); setProgress(null); abort.current = null; }
   };
-
-  const addClipFromAsset = (asset: AudioAsset) => {
-    const trackId = ui.selectedTrackId ?? project.tracks[0]?.id;
-    if (!trackId) return;
-    const maxEnd = project.clips
-      .filter((c) => c.trackId === trackId)
-      .reduce((m, c) => Math.max(m, c.start + c.duration), 0);
-    addClip({
-      trackId,
-      assetId: asset.id,
-      start: maxEnd,
-      offset: 0,
-      duration: asset.durationSec,
-    });
+  const insert = (asset: AudioAsset) => {
+    const state = useStore.getState();
+    let track = state.project.tracks.find(item => item.id === state.ui.selectedTrackId) ?? state.project.tracks[0];
+    if (!track) { addTrack(); track = useStore.getState().project.tracks[0]; }
+    if (!track || missingMedia.includes(asset.id)) return;
+    const start = Math.max(0, ...state.project.clips.filter(clip => clip.trackId === track.id).map(clip => clip.start + clip.duration));
+    const id = addClip({ trackId: track.id, assetId: asset.id, start, offset: 0, duration: asset.durationSec / sourceRate(track) });
+    setSelected({ selectedClipId: id, selectedTrackId: track.id, inspectorMode: "clip" });
   };
-
-  const selectedTrack = project.tracks.find((t) => t.id === ui.selectedTrackId);
-  const effectTypes: EffectType[] = [
-    "eq10",
-    "compressor",
-    "limiter",
-    "saturation",
-    "widener",
-    "reverb",
-    "delay",
-    "eq3",
-    "gain",
-    "speed",
-    "pitch",
-  ];
-
-  return (
-    <aside className="w-64 bg-bg-1 border-r border-bg-3 flex flex-col flex-shrink-0 overflow-hidden">
-      <div
-        className="p-3 border-b border-bg-3 flex-shrink-0"
-        onDragOver={(e) => {
-          e.preventDefault();
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.files.length > 0) {
-            void handleFiles(e.dataTransfer.files);
-          }
-        }}
-      >
-        <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
-          Files
-        </div>
-        <button
-          className="w-full py-2 rounded bg-bg-2 hover:bg-bg-3 text-xs transition-colors border border-bg-3"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {loading ? "Decoding..." : "Import Audio"}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="audio/*"
-          multiple
-          className="hidden"
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
-        />
-        <div className="text-[9px] text-gray-600 mt-2 text-center italic">
-          Or drag files here
-        </div>
-      </div>
-
-      <div className="overflow-y-auto flex-1 no-scrollbar">
-        <div className="p-3">
-          <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
-            Assets
-          </div>
-          <div className="flex flex-col gap-1">
-            {Object.values(project.assets).length === 0 && (
-              <div className="text-[10px] text-gray-600 italic p-2 bg-bg-0/50 rounded border border-dashed border-bg-3">
-                No files loaded
-              </div>
-            )}
-            {Object.values(project.assets).map((a) => (
-              <div
-                key={a.id}
-                className="bg-bg-2 hover:bg-bg-3 rounded px-2 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors border border-transparent hover:border-bg-3"
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData("application/x-mini-daw-asset", a.id);
-                  e.dataTransfer.effectAllowed = "copy";
-                }}
-                onDoubleClick={() => addClipFromAsset(a)}
-                title="Double-click to add to selected track"
-              >
-                <span className="text-xs truncate flex-1">{a.name}</span>
-                <span className="text-[9px] text-gray-500 tabular-nums">
-                  {a.durationSec.toFixed(1)}s
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-3 border-t border-bg-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] uppercase text-gray-500 tracking-widest font-bold">
-              Tracks
-            </div>
-            <button
-              className="text-[10px] w-5 h-5 flex items-center justify-center rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors"
-              onClick={() => addTrack()}
-              title="Add Track"
-            >
-              +
-            </button>
-          </div>
-          <div className="flex flex-col gap-1">
-            {project.tracks.map((t) => (
-              <div
-                key={t.id}
-                className={`text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors border cursor-pointer ${
-                  ui.selectedTrackId === t.id && ui.inspectorMode === "track"
-                    ? "bg-bg-3 border-accent/30"
-                    : "bg-bg-2 border-transparent hover:bg-bg-3"
-                }`}
-                onClick={() =>
-                  setSelected({ selectedTrackId: t.id, inspectorMode: "track", selectedClipId: null })
-                }
-              >
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: t.color }}
-                />
-                <span className="text-xs truncate flex-1">{t.name}</span>
-                <button
-                  className={`text-[10px] px-1 rounded ${
-                    t.mute ? "bg-red-500/70 text-black" : "bg-bg-3 text-gray-400"
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateTrack(t.id, { mute: !t.mute });
-                  }}
-                  title="Mute"
-                >
-                  M
-                </button>
-                <button
-                  className={`text-[10px] px-1 rounded ${
-                    t.solo ? "bg-yellow-400 text-black" : "bg-bg-3 text-gray-400"
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateTrack(t.id, { solo: !t.solo });
-                  }}
-                  title="Solo"
-                >
-                  S
-                </button>
-              </div>
-            ))}
-            <button
-              className={`mt-1 px-2 py-1.5 rounded flex items-center gap-2 text-left transition-colors border ${
-                ui.inspectorMode === "master"
-                  ? "bg-bg-3 border-accent/30"
-                  : "bg-bg-2 border-transparent hover:bg-bg-3"
-              }`}
-              onClick={() =>
-                setSelected({ inspectorMode: "master", selectedClipId: null })
-              }
-              title="Master bus inspector"
-            >
-              <span className="w-2 h-2 rounded-full bg-accent" />
-              <span className="text-xs truncate">Master bus</span>
-            </button>
-          </div>
-        </div>
-
-        {selectedTrack && ui.inspectorMode === "track" && (
-          <div className="p-3 border-t border-bg-3">
-            <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
-              Add Effect
-            </div>
-            <div className="grid grid-cols-2 gap-1">
-              {effectTypes.map((t) => (
-                <button
-                  key={t}
-                  className="text-[10px] px-2 py-1.5 rounded bg-bg-2 hover:bg-bg-3 border border-bg-3 transition-colors text-left truncate"
-                  onClick={() => addEffect(selectedTrack.id, t)}
-                >
-                  + {EFFECT_LABELS[t]}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {selectedTrack && ui.inspectorMode === "track" && (
-          <div className="p-3 border-t border-bg-3">
-            <div className="text-[10px] uppercase text-gray-500 tracking-widest mb-2 font-bold">
-              Quick chain
-            </div>
-            <div className="flex flex-col gap-1">
-              {QUICK_CHAINS.map((qc) => (
-                <button
-                  key={qc.name}
-                  className="text-xs px-2 py-1 rounded bg-bg-2 hover:bg-bg-3 text-left"
-                  onClick={() => applyQuickChain(selectedTrack.id, qc)}
-                  title={qc.description}
-                >
-                  {qc.name}
-                  <span className="block text-[10px] text-gray-500">{qc.description}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </aside>
-  );
+  const recordRecent = (name: string) => { const next = [name, ...recent.filter(item => item !== name)].slice(0, 8); setRecent(next); writePreference("recent-presets", next); };
+  const toggleFavorite = (name: string) => { const next = favorites.includes(name) ? favorites.filter(item => item !== name) : [...favorites, name]; setFavorites(next); writePreference("favorites", next); };
+  const savePreset = () => {
+    const effects = master ? project.masterEffects : selectedTrack?.effects;
+    if (!presetName.trim() || !effects?.length) return;
+    const next = [...presets.filter(item => item.name !== presetName.trim()), { name: presetName.trim(), effects: structuredClone(effects) }];
+    setPresets(next); writePreference("user-presets", next); setPresetName("");
+  };
+  return <aside className="flex flex-col min-h-0 bg-bg-1" onDragOver={event => { if (event.dataTransfer.types.includes("Files")) event.preventDefault(); }} onDrop={event => { if (event.dataTransfer.files.length) { event.preventDefault(); void handleFiles(event.dataTransfer.files); } }}>
+    <div className="library-tabs" role="tablist" aria-label={text("Библиотека", "Library")}>{(["files", "effects", "presets"] as const).map((item, index) => <button key={item} role="tab" aria-selected={tab === item} onClick={() => setTab(item)}>{[text("Файлы", "Files"), text("Эффекты", "Effects"), text("Пресеты", "Presets")][index]}</button>)}</div>
+    <div className="library-content custom-scrollbar">
+      <input data-history="off" className="library-search" type="search" aria-label={text("Поиск файлов и дорожек", "Search files and tracks")} placeholder={text("Поиск…", "Search…")} value={query} onChange={e => setQuery(e.target.value)} />
+      {tab === "files" && <>
+        <button className="w-full" disabled={loading} onClick={() => input.current?.click()}>{loading ? text("Импорт…", "Importing…") : text("Импорт аудио", "Import audio")}</button>
+        <input ref={input} hidden type="file" accept="audio/*,.wav,.mp3,.flac,.ogg,.m4a,.aac,.aif,.aiff" multiple onChange={e => { const files = Array.from(e.target.files ?? []); e.target.value = ""; if (files.length) void handleFiles(files); }} />
+        <input ref={relinkInput} hidden type="file" accept="audio/*" onChange={e => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void relinkMedia(relinkId.current, file); }} />
+        {progress && <div className="import-progress" role="status">{progress.index}/{progress.total} · {progress.fileName}<button onClick={() => abort.current?.abort()}>{text("Отмена", "Cancel")}</button></div>}
+        {failures.map((failure, index) => <div className="import-failure" role="alert" key={index}>{failure.file.name}: {failure.reason}<button disabled={loading} onClick={() => void handleFiles([failure.file])}>{text("Повторить", "Retry")}</button></div>)}
+        <h3>{text("Аудиофайлы", "Audio files")}</h3>
+        {!Object.keys(project.assets).length && <p className="text-gray-400">{text("Импортируйте файлы, затем перетащите их на дорожку или нажмите дважды.", "Import files, then drag them onto a track or double-click.")}</p>}
+        {Object.values(project.assets).filter(asset => matches(asset.name)).map(asset => <div key={asset.id} className="asset" tabIndex={0} role="button" aria-label={asset.name} draggable={!missingMedia.includes(asset.id)} onKeyDown={e => { if (e.key === "Enter") insert(asset); }} onDoubleClick={() => insert(asset)} onDragStart={e => { e.dataTransfer.setData("application/x-mini-daw-asset", asset.id); e.dataTransfer.effectAllowed = "copy"; }}>
+          <div className="asset-name">{asset.name}</div><small>{asset.durationSec.toFixed(2)} s · {asset.numChannels} ch · {asset.sampleRate} Hz</small>
+          <button aria-label={text("Удалить файл из библиотеки", "Remove library file")} title={text("Удаление возможно, если файл не используется монтажом, буфером обмена и Undo", "Remove only when unused by clips, clipboard and Undo")} onClick={event => { event.stopPropagation(); useStore.getState().removeAsset(asset.id); }} onDoubleClick={event => event.stopPropagation()}>×</button>
+          {missingMedia.includes(asset.id) && <button className="danger-soft" onClick={() => { relinkId.current = asset.id; relinkInput.current?.click(); }}>{text("Найти исходник…", "Relink source…")}</button>}
+        </div>)}
+        <h3>{text("Дорожки", "Tracks")} <button onClick={addTrack} aria-label={text("Добавить дорожку", "Add track")}>+</button></h3>
+        <button className="track-search-result" onClick={() => setSelected({ selectedClipId: null, inspectorMode: "master" })}>{text("Мастер", "Master")}</button>
+        {project.tracks.filter(track => matches(track.name)).map(track => <button className="track-search-result" key={track.id} style={{ borderLeft: `3px solid ${track.color}` }} onClick={() => setSelected({ selectedTrackId: track.id, selectedClipId: null, inspectorMode: "track" })}>{track.name}</button>)}
+        <h3>{text("Уровень перед эффектами", "Gain before effects")}</h3>
+        <label>{text("Общий вход", "Global input")} {project.audioSettings.inputGainDb.toFixed(1)} dB<input aria-label={text("Входной уровень", "Input gain")} className="w-full" type="range" min="-24" max="24" step="0.1" value={project.audioSettings.inputGainDb} onChange={e => useStore.getState().updateAudioSettings({ inputGainDb: Number(e.target.value) })} /></label>
+      </>}
+      {tab === "effects" && <><p className="mb-3 text-gray-400">{text("Добавить на: ", "Add to: ")}{master ? text("Мастер", "Master") : selectedTrack?.name ?? "—"}</p>{EFFECT_MENU.flatMap(group => group.types).filter(type => !master || !["speed", "pitch"].includes(type)).filter(type => matches(t(EFFECT_LABELS[type]))).map(type => <button className="track-search-result" key={type} disabled={!master && !selectedTrack} onClick={() => master ? addMasterEffect(type) : selectedTrack && addEffect(selectedTrack.id, type)}>+ {t(EFFECT_LABELS[type])}</button>)}</>}
+      {tab === "presets" && <>
+        <label><input type="checkbox" checked={favoritesOnly} onChange={e => setFavoritesOnly(e.target.checked)} /> {text("Избранное", "Favorites")}</label>
+        {recent.length > 0 && <p className="my-2 text-gray-400">{text("Недавние: ", "Recent: ")}{recent.join(", ")}</p>}
+        {QUICK_CHAINS.filter(chain => matches(chain.name) && (!favoritesOnly || favorites.includes(chain.name))).map(chain => <div className="preset-card" key={chain.name}><div><button aria-label={text("В избранное", "Favorite")} onClick={() => toggleFavorite(chain.name)}>{favorites.includes(chain.name) ? "★" : "☆"}</button><strong>{chain.name}</strong></div><p>{chain.steps.map(step => t(EFFECT_LABELS[step.type])).join(" → ")}</p><button disabled={chain.target !== "master" && !selectedTrack} onClick={() => { if (chain.target === "master") { applyQuickChainToMaster(chain); setSelected({ inspectorMode: "master" }); } else if (selectedTrack) applyQuickChainToTrack(selectedTrack.id, chain); recordRecent(chain.name); }}>{text("Применить цепочку", "Apply chain")}</button></div>)}
+        <h3>{text("Мои пресеты", "My presets")}</h3>
+        <input data-history="off" aria-label={text("Название пресета", "Preset name")} placeholder={text("Название цепочки", "Chain name")} value={presetName} onChange={e => setPresetName(e.target.value)} /><button onClick={savePreset} disabled={!presetName.trim()}>{text("Сохранить цепочку", "Save chain")}</button>
+        {presets.filter(preset => matches(preset.name)).map(preset => <div className="preset-card" key={preset.name}><strong>{preset.name}</strong><p>{preset.effects.map(effect => t(EFFECT_LABELS[effect.type])).join(" → ")}</p><button onClick={() => { const effects = structuredClone(preset.effects).filter(effect => !master || !["speed", "pitch"].includes(effect.type)).map(cloneEffect); useStore.getState().commit(p => master ? { ...p, masterEffects: effects } : { ...p, tracks: p.tracks.map(track => track.id === selectedTrack?.id ? { ...track, effects } : track) }, `Preset: ${preset.name}`); recordRecent(preset.name); }}>{text("Применить", "Apply")}</button><button onClick={() => { const next = presets.filter(item => item !== preset); setPresets(next); writePreference("user-presets", next); }}>{text("Удалить", "Delete")}</button></div>)}
+      </>}
+    </div>
+  </aside>;
 }

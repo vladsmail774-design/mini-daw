@@ -9,6 +9,17 @@ lerna-debug.log*
 
 node_modules
 dist
+release
+test-results/
+test-results-*/
+playwright-report/
+# Android (Capacitor)
+android/app/build
+android/.gradle
+android/build
+android/local.properties
+*.apk
+*.aab
 dist-ssr
 *.local
 
